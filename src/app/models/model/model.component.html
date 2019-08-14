@@ -1,0 +1,30 @@
+<!--h1 mat-dialog-title>Hi {{data.name}}</h1>
+<div mat-dialog-content>
+  <p>What's your favorite animal?</p>
+  <mat-form-field>
+    <input matInput [(ngModel)]="data.animal">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button [mat-dialog-close]="data.animal" cdkFocusInitial>Ok</button>
+</div-->
+
+<div>
+    <h1 mat-dialog-title><mat-toolbar><mat-icon>list</mat-icon><span>Data model</span></mat-toolbar></h1>
+    <div mat-dialog-content>
+        <p>Model Label:</p>
+        <mat-form-field>
+            <input matInput [(ngModel)]="data.name">
+        </mat-form-field>
+        <p>Collection:</p>
+        <mat-form-field>
+            <input matInput [(ngModel)]="data.collection">
+        </mat-form-field>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">No Thanks</button>
+        <button [disabled]="(data.name=='')||(data.collection=='')" mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
+    </div>
+</div>
+
