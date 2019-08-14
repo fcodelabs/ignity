@@ -1,0 +1,18 @@
+<div>
+    <h1 mat-dialog-title><mat-toolbar><span>Field : Create New</span></mat-toolbar></h1>
+    <div mat-dialog-content>
+        <p>Field Key:</p>
+        <span *ngFor="let x of data.fields">
+
+            <mat-form-field >
+                <input matInput [(ngModel)]="x['value']" (blur)="getValue($event)">
+            </mat-form-field>
+        </span>
+    </div>
+    <div mat-dialog-actions>
+        <!--button mat-button (click)="onNoClick()">No Thanks</button-->
+        <button mat-button (click)="addNewField()">add</button>
+        <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
+    </div>
+</div>
+    

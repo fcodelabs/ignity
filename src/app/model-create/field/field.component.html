@@ -1,0 +1,22 @@
+<div>
+    <h1 mat-dialog-title><mat-toolbar><span>Field : Create New</span></mat-toolbar></h1>
+    <div mat-dialog-content>
+        <p>Field Key:</p>
+        <mat-form-field>
+            <input matInput [(ngModel)]="data.field">
+        </mat-form-field>
+        <p>Input Type:</p>
+        <mat-form-field>
+            <mat-select [(ngModel)]="data.dataType">
+                <mat-option *ngFor="let dataT of dataTypes" [value]="dataT.value">
+                    {{dataT.viewValue}}
+                </mat-option>
+            </mat-select>
+            <!--input matInput [(ngModel)]="data.dataType"-->
+        </mat-form-field>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">No Thanks</button>
+        <button [disabled]="(data.field=='')||(data.dataType=='')" mat-button [mat-dialog-close]="data" cdkFocusInitial>Submit</button>
+    </div>
+</div>
