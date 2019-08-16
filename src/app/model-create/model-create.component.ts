@@ -13,35 +13,35 @@ import { OptionSelectionComponent } from './option-selection/option-selection.co
   styleUrls: ['./model-create.component.css']
 })
 export class ModelCreateComponent implements OnInit {
-  modelName='';
+  modelName = '';
   result;
-  field='';
-  dataType='';
-  fields=[];
-  dataTypes={};
-  allData=[];
-  mapFields=[];
+  field = '';
+  dataType = '';
+  fields = [];
+  dataTypes = {};
+  allData = [];
+  mapFields = [];
   constructor(public dialog: MatDialog,
               private route: ActivatedRoute,
               private firestore: AngularFirestore,
-              private router: Router) { 
-    let modelName=this.route.snapshot.paramMap.get('modelName');
-    this.modelName=modelName;
+              private router: Router) {
+    const modelName = this.route.snapshot.paramMap.get('modelName');
+    this.modelName = modelName;
     console.log(this.modelName);
-    
-    let cityRef = this.firestore.collection('appData').doc(modelName);
+
+    const cityRef = this.firestore.collection('appData').doc(modelName);
     cityRef.get()
     .subscribe(doc => {
       if (!doc.exists) {
         console.log('No such document!');
       } else {
         console.log('Document data:', doc.data());
-        this.fields=doc.data().fields;
-        this.dataTypes=doc.data().datatypes;
+        this.fields = doc.data().fields;
+        this.dataTypes = doc.data().datatypes;
         this.allData.push(doc.data());
       }
     }
-    ,err => {
+    , err => {
       console.log('Error getting document', err);
     });
 
@@ -49,7 +49,7 @@ export class ModelCreateComponent implements OnInit {
 
   ngOnInit() {
   }
-  
+
   openDialog(): void {
     const dialogRef = this.dialog.open(FieldComponent, {
       width: '350px',
@@ -60,131 +60,135 @@ export class ModelCreateComponent implements OnInit {
       this.result = result;
       console.log('The dialog was closed');
       console.log(result == null);
-      if(!(result==null)){
+      if (!(result == null)) {
         console.log(result.field);
         console.log(result.dataType);
         this.fields.push(result.field);
-        //let en={};
-        //en[result.field]=result.dataType;
-        this.dataTypes[result.field]=result.dataType;
-        let cityRef = this.firestore.collection('appData').doc(this.modelName);
+        // let en={};
+        // en[result.field]=result.dataType;
+        this.dataTypes[result.field] = result.dataType;
+        const cityRef = this.firestore.collection('appData').doc(this.modelName);
 
-        if(result.dataType=='array'){
-          let data={};
-          data[result.field]='string';
-          this.allData[0][result.field]='string';
+        if (result.dataType === 'array') {
+          const data = {};
+          data[result.field] = 'string';
+          this.allData[0][result.field] = 'string';
           cityRef.update(data);
         }
-        if(result.dataType=='map'){
-          this.allData[0][result.field]=[];
+        if (result.dataType === 'map') {
+          this.allData[0][result.field] = [];
           this.openDialogMap(result.field);
         }
-        if(result.dataType=='optionselection'){
-          this.allData[0][result.field]=[];
+        if (result.dataType === 'optionselection') {
+          this.allData[0][result.field] = [];
           this.openDialogOptionSelection(result.field);
         }
 
         cityRef.update({fields: this.fields});
-        cityRef.update({datatypes:this.dataTypes});
+        cityRef.update({datatypes: this.dataTypes});
 
       }
     });
   }
 
-  onViewData(){
-    return this.router.navigate(['/model/data',this.modelName]);
+  onViewData() {
+    return this.router.navigate(['/model/data', this.modelName]);
   }
 
-  onBack(){
+  onBack() {
     return this.router.navigate(['']);
   }
-  
-  updateValue(event,f){
+
+  updateValue(event, f) {
     console.log(event.target.value);
-    let cityRef = this.firestore.collection('appData').doc(this.modelName);
+    const cityRef = this.firestore.collection('appData').doc(this.modelName);
     console.log(this.allData[0][f]);
-    let data={};
-    data[f]=event.target.value;
+    const data = {};
+    data[f] = event.target.value;
     cityRef.update(data);
   }
 
   openDialogMap(f): void {
-    let mapFields=[];
-    if(this.allData[0][f].length==0){
-      mapFields=[{value:''}];
-    }else{
-      for (let x of this.allData[0][f]){
-        let d={};
-        d['value']=x;
+    let mapFields = [];
+    if (this.allData[0][f].length === 0) {
+      mapFields = [{value: ''}];
+    } else {
+      for (const x of this.allData[0][f]) {
+        const d = {
+          value: 0,
+        };
+        d.value = x;
         mapFields.push(d);
       }
     }
-    
+
 
     const dialogRef = this.dialog.open(MapComponent, {
       width: '350px',
-      data: {fields:mapFields}
+      data: {fields: mapFields}
     });
 
     dialogRef.afterClosed().subscribe(result => {
       this.result = result;
       console.log('The dialog was closed');
       console.log(result == null);
-      let flds=[];
-      if(!(result==null)){
+      const flds = [];
+      if (!(result == null)) {
         console.log(result.fields);
-        for (let x of result.fields){
-          if (x['value'] != ''){
-            flds.push(x['value']);
+        for (const x of result.fields) {
+          if (x.value !== '') {
+            flds.push(x.value);
           }
         }
-      }else{
-        return
+      } else {
+        return;
       }
-      let data={};
-      this.allData[0][f]=flds;
-      data[f]=flds;
-      let cityRef = this.firestore.collection('appData').doc(this.modelName);
+      const data = {};
+      this.allData[0][f] = flds;
+      data[f] = flds;
+      const cityRef = this.firestore.collection('appData').doc(this.modelName);
       cityRef.update(data);
     });
   }
 
-  openDialogOptionSelection(f){
-    let options=[];
-    if(this.allData[0][f].length==0){
-      options=[{value:''}];
-    }else{
-      for (let x of this.allData[0][f]){
-        let d={};
-        d['value']=x;
+  openDialogOptionSelection(f) {
+    let options = [];
+    if (this.allData[0][f].length === 0) {
+      options = [{value: ''}];
+    } else {
+      for (const x of this.allData[0][f]) {
+        const d = {
+          value: 0,
+        };
+        d.value = x;
         options.push(d);
       }
     }
 
     const dialogRef = this.dialog.open(OptionSelectionComponent, {
       width: '350px',
-      data: {options:options}
+      data: {options}
     });
 
     dialogRef.afterClosed().subscribe(result => {
       this.result = result;
       console.log('The dialog was closed');
       console.log(result == null);
-      let ops=[];
-      if(!(result==null)){
+      const ops = [];
+      if (!(result == null)) {
         console.log(result.options);
-        for (let x of result.options){
-          if (x['value'] != ''){
-            ops.push(x['value']);
+        for (const x of result.options) {
+          if (x.value !== '') {
+            ops.push(x.value);
           }
         }
-      }else{
-        return
+      } else {
+        return;
       }
-      let data={};
-      this.allData[0][f]=ops;
-      data[f]=ops;
-      let cityRef = this.firestore.collection('appData').doc(this.modelName);
+      const data = {};
+      this.allData[0][f] = ops;
+      data[f] = ops;
+      const cityRef = this.firestore.collection('appData').doc(this.modelName);
       cityRef.update(data);
     });
   }
@@ -195,59 +199,59 @@ export class ModelCreateComponent implements OnInit {
     let fields=this.collection[0];
     var dt = {};
     for (let entry of fields) {
-      switch(this.dataTypes[entry]) { 
-        case "string": { 
+      switch(this.dataTypes[entry]) {
+        case "string": {
           dt[entry] = "";
-          console.log("string"); 
-          break; 
-        } 
-        case "number": { 
+          console.log("string");
+          break;
+        }
+        case "number": {
           dt[entry] = 0;
-          console.log("number"); 
-          break; 
-        } 
+          console.log("number");
+          break;
+        }
         case "boolean": {
           dt[entry] = false;
-          console.log("boolean"); 
-          break;    
-        } 
-        case "map": { 
+          console.log("boolean");
+          break;
+        }
+        case "map": {
           let d={}
           for (let f of this.tableData[entry]){
             d[f]='';
           }
           dt[entry] = d;
-          console.log("map"); 
-          break; 
-        }  
+          console.log("map");
+          break;
+        }
         case "array": {
-          dt[entry] = []; 
-          console.log("array"); 
-          break;              
-        } 
-        case "datetime": { 
+          dt[entry] = [];
+          console.log("array");
+          break;
+        }
+        case "datetime": {
           dt[entry] = "";
-          console.log("datetime"); 
-          break;              
-        } 
+          console.log("datetime");
+          break;
+        }
         case "geopoint": {
           let gp={};
           gp['longitude']=0;
           gp['latitude']=0;
           dt[entry] = gp;
-          console.log("geopoint"); 
-          break;              
-        } 
-        case "database": { 
+          console.log("geopoint");
+          break;
+        }
+        case "database": {
           dt[entry] = "";
-          console.log("database"); 
-          break;              
-        } 
-        case "optionselection": { 
+          console.log("database");
+          break;
+        }
+        case "optionselection": {
           dt[entry] = this.tableData[entry][0];
-          console.log("optionselection"); 
-          break;              
-        } 
+          console.log("optionselection");
+          break;
+        }
         default:{
           dt[entry] = "";
           console.log("error[default]");

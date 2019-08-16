@@ -8,7 +8,7 @@ import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 })
 export class FieldComponent implements OnInit {
 
-  dataTypes= [
+  dataTypes = [
     {value: 'string', viewValue: 'String'},
     {value: 'number', viewValue: 'Number'},
     {value: 'boolean', viewValue: 'Check Box'},
@@ -21,7 +21,7 @@ export class FieldComponent implements OnInit {
   ];
 
   constructor(public dialogRef: MatDialogRef<FieldComponent>,
-    @Inject(MAT_DIALOG_DATA) public data) { }
+              @Inject(MAT_DIALOG_DATA) public data) { }
 
   onNoClick(): void {
     this.dialogRef.close();

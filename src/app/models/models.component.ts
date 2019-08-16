@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ModelComponent } from './model/model.component';
 import { Router } from '@angular/router';
 import { FireConnectionService } from '../shared/fire-connection.service';
-import { retry, catchError } from 'rxjs/operators';
 import { DataService } from '../shared/data.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 
@@ -14,18 +13,18 @@ import { AngularFirestore } from '@angular/fire/firestore';
   styleUrls: ['./models.component.css']
 })
 export class ModelsComponent implements OnInit {
- name='';
- collection='';
+ name = '';
+ collection = '';
  result;
- modelList=[];
- data=[];
+ modelList = [];
+ data = [];
   constructor(public dialog: MatDialog,
-              private router:Router,
-              private fire:FireConnectionService,
-              private dataS:DataService,
-              private firestore:AngularFirestore) {
-    
-    let citiesRef = this.firestore.collection('appData');
+              private router: Router,
+              private fire: FireConnectionService,
+              private dataS: DataService,
+              private firestore: AngularFirestore) {
+
+    const citiesRef = this.firestore.collection('appData');
     citiesRef.get()
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
@@ -33,27 +32,23 @@ export class ModelsComponent implements OnInit {
           this.modelList.push(doc);
         });
         console.log(this.modelList);
-      })
-      err => {
-        console.log('Error getting documents', err);
-      };            
-    
+      });
   }
 
   ngOnInit() {
-    
+
   }
 
-  getModels(){
+  getModels() {
     console.log(this.modelList);
   }
 
-  onClick(docId){
-    //fields.unshift('ID');
+  onClick(docId) {
+    // fields.unshift('ID');
     console.log(docId);
-    //this.data=[docId,fields];
-    //this.dataS.changeData(this.data);
-    return this.router.navigate(['/model/data',docId]);
+    // this.data=[docId,fields];
+    // this.dataS.changeData(this.data);
+    return this.router.navigate(['/model/data', docId]);
   }
 
   openDialog(): void {
@@ -66,32 +61,32 @@ export class ModelsComponent implements OnInit {
       this.result = result;
       console.log('The dialog was closed');
       console.log(result == null);
-      if(!(result==null)){
+      if (!(result == null)) {
         console.log(result.name);
         console.log(result.collection);
 
-        let data = {
+        const data = {
           name: result.name,
           path: result.collection,
-          fields:[],
-          datatypes:{}
+          fields: [],
+          datatypes: {}
         };
 
         this.firestore.collection('appData').doc(result.name).set(data);
 
-        return this.router.navigate(['/model-create',result.name]);
+        return this.router.navigate(['/model-create', result.name]);
       }
     });
   }
 
-  onEdit(docId){
-    return this.router.navigate(['/model-create',docId]);
+  onEdit(docId) {
+    return this.router.navigate(['/model-create', docId]);
   }
 
-  onDelete(docId){
-    for (let entry of this.modelList){
-      if(entry.id==docId){
-        let id =this.modelList.indexOf(entry);
+  onDelete(docId) {
+    for (const entry of this.modelList) {
+      if (entry.id === docId) {
+        const id = this.modelList.indexOf(entry);
         this.firestore.collection('appData').doc(docId).delete();
         this.modelList.splice(id, 1);
       }
