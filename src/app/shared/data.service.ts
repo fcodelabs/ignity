@@ -5,12 +5,12 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class DataService {
-  data=[];
-  private dataSource= new BehaviorSubject(this.data);
-  currentData=this.dataSource.asObservable();
+  data = [];
+  private dataSource = new BehaviorSubject(this.data);
+  currentData = this.dataSource.asObservable();
   constructor() {}
-  changeData(data:Array<any>){
+  changeData(data: Array<any>) {
     this.dataSource.next(data);
-    this.data=data;
+    this.data = data;
   }
 }
