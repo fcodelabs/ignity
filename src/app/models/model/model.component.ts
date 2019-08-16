@@ -13,8 +13,8 @@ import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 export class ModelComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ModelComponent>,
-    @Inject(MAT_DIALOG_DATA) public data /*DialogData       -- interface data type*/) { }
-  
+              @Inject(MAT_DIALOG_DATA) public data /*DialogData       -- interface data type*/) { }
+
   onNoClick(): void {
     this.dialogRef.close();
   }

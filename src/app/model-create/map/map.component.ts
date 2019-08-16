@@ -16,10 +16,10 @@ export class MapComponent implements OnInit {
   }
   ngOnInit() {
   }
-  addNewField(){
-    this.data.fields.push({value:''});
+  addNewField() {
+    this.data.fields.push({value: ''});
   }
-  getValue(event){
+  getValue(event) {
     console.log(event.target.value);
   }
 

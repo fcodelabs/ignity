@@ -18,14 +18,14 @@ import { MapComponent } from './model-create/map/map.component';
 import { OptionSelectionComponent } from './model-create/option-selection/option-selection.component';
 
 const config = {
-  apiKey: "AIzaSyDSrdbgebIsyvK4vXeM9JXKAAsY6c-xOqs",
-  authDomain: "fir-cms-ae9d0.firebaseapp.com",
-  databaseURL: "https://fir-cms-ae9d0.firebaseio.com",
-  projectId: "fir-cms-ae9d0",
-  storageBucket: "fir-cms-ae9d0.appspot.com",
-  messagingSenderId: "814248522504",
-  appId: "1:814248522504:web:dd849efcd11e5a0d"
-}
+  apiKey: 'AIzaSyDSrdbgebIsyvK4vXeM9JXKAAsY6c-xOqs',
+  authDomain: 'fir-cms-ae9d0.firebaseapp.com',
+  databaseURL: 'https://fir-cms-ae9d0.firebaseio.com',
+  projectId: 'fir-cms-ae9d0',
+  storageBucket: 'fir-cms-ae9d0.appspot.com',
+  messagingSenderId: '814248522504',
+  appId: '1:814248522504:web:dd849efcd11e5a0d'
+};
 
 
 
@@ -39,7 +39,7 @@ const config = {
     FieldComponent,
     MapComponent,
     OptionSelectionComponent,
-    
+
   ],
   imports: [
     BrowserModule,
@@ -50,8 +50,8 @@ const config = {
     AngularFireModule.initializeApp(config),
     AngularFirestoreModule
   ],
-  exports:[ModelComponent,FieldComponent,MapComponent,OptionSelectionComponent],
-  entryComponents: [ModelComponent,FieldComponent,MapComponent,OptionSelectionComponent],
+  exports: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent],
+  entryComponents: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent],
   providers: [],
   bootstrap: [AppComponent]
 })
