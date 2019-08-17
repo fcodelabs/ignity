@@ -19,8 +19,9 @@
             </button></span>
         </mat-toolbar>
         <table *ngIf="collectionData !=[]">
+            <!--table header start-->
             <tr>
-                <th *ngFor="let col of collection[0]">{{col}} 
+                <th *ngFor="let col of collection[0]">{{col}}
                     <span style="float: right">
                                 <mat-select [(ngModel)]="dataTypes[col]" (selectionChange)="updateDataType($event.value,col)">
                                     <mat-option *ngFor="let dataT of defaultDataTypes" [value]="dataT.value">
@@ -32,20 +33,23 @@
                 </th>
                 <th style="width :100px"><span style="float: right">Remove</span></th>
             </tr>
+            <!--table header end-->
+
+            <!--start of table body-->
             <tr *ngFor="let row of allData">
-                <td *ngFor="let col of collection[0]" style="cursor: pointer"  
+                <td *ngFor="let col of collection[0]" style="cursor: pointer"
                     (keyup)="changeValue($event,row,col)" (blur)="updateValue($event,row,col)" #other_content>
                     <span [ngSwitch]="dataTypes[col]">
-
+                        <!--checkbox-->
                         <span *ngSwitchCase="'boolean'" contenteditable="false">
                             <mat-checkbox [(ngModel)]="row[1][col]" (click)="updateCheckBox(row,col)" (blur)="updateValue($event,row,col)"></mat-checkbox>
                         </span>
-
+                        <!--number-->
                         <span *ngSwitchCase="'number'" contenteditable="false">
                             <input (blur)="updateValue($event,row,col)" type="number" [value]="row[1][col]" style="border: none;
                             background-color:rgba(0, 0, 0, 0);width: 100%; height: 50px;">
                         </span>
-
+                        <!--option selection-->
                         <span *ngSwitchCase="'optionselection'">
                             <mat-form-field >
                                 <mat-select [(ngModel)]="row[1][col]" (selectionChange)="updateValue($event,row,col)">
@@ -55,7 +59,7 @@
                                 </mat-select>
                             </mat-form-field>
                         </span>
-
+                        <!--array-->
                         <span *ngSwitchCase="'array'">
                             <div *ngFor="let x of row[1][col];let i = index"[attr.data-index]="i" style="width: 100%">
 
@@ -65,13 +69,13 @@
 
                                 <input *ngIf="tableData[col]=='number'" [(ngModel)]="x" (blur)="updateValueArray($event,row,col,i)" type="number" [value]="row[1][col]" style="border: none;
                                 background-color:rgba(0, 0, 0, 0);width: 100%; height: 40px;">
-                                
+
                                 <div *ngIf="tableData[col]=='boolean'" style="height: 20px">
                                     <select [ngModel]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl required>
                                         <option value=true >true</option>
                                         <option value=false>false</option>
                                     </select>
-                                    <!--mat-checkbox  [(ngModel)]="row[1][col][i]" (click)="updateValueArray($event,row,col,i)" ></mat-checkbox--->                                
+                                    <!--mat-checkbox  [(ngModel)]="row[1][col][i]" (click)="updateValueArray($event,row,col,i)" ></mat-checkbox--->
                                 </div>
                                 <hr>
                             </div>
@@ -79,16 +83,17 @@
                                 <button (click)="addArrayValue(row,col)"  mat-icon-button color="primary"><mat-icon>add</mat-icon></button>
                             </span>
                         </span>
-
+                        <!--map-->
                         <span *ngSwitchCase="'map'">
                             <span *ngFor="let f of tableData[col]">
                                 <div style="margin-bottom: 5px">
                                     {{f}}
-                                    <input (blur)="updateValue($event,row,col)" [(ngModel)]="row[1][col][f]" 
+                                    <input (blur)="updateValue($event,row,col)" [(ngModel)]="row[1][col][f]"
                                     style="width: 80px;float :right">
                                 </div>
                             </span>
                         </span>
+                        <!--Geo point-->
                         <span *ngSwitchCase="'geopoint'">
                             <div style="margin-bottom: 5px">
                                 Longitude :
@@ -101,20 +106,19 @@
                                 [ngModel]="row[1][col]['latitude']" style="width: 80px;float :right">
                             </div>
                         </span>
-
+                        <!--Default-->
                         <span *ngSwitchDefault>
                             <td contenteditable="true"  (blur)="updateValue($event,row,col)"  style="width: 100%; height:100%;">
                                 {{row[1][col]}}
                             </td>
                         </span>
-                        
                     </span>
                 </td>
                 <td>
                     <button (click)="remove(row[0])" style="float: right" mat-raised-button color="warn"><mat-icon>delete</mat-icon>Remove</button>
                 </td>
             </tr>
-            
+            <!--end of table body-->
         </table>
     </div>
 </div>
