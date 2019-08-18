@@ -507,4 +507,8 @@ export class DataComponent implements OnInit {
     };
     cityRef.update(data);
   }
+
+  addField(event){
+    console.log(event.target.value);
+  }
 }
