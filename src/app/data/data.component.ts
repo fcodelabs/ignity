@@ -35,6 +35,7 @@ export class DataComponent implements OnInit {
   allData = [];
   dataTypes = {};
   tableData;
+  newField = null;
   constructor(private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -508,7 +509,21 @@ export class DataComponent implements OnInit {
     cityRef.update(data);
   }
 
-  addField(event){
+  addField(event) {
+    // event use to get new field name,newField global variable is only using to clear input box
+    let newField = '';
     console.log(event.target.value);
+    // remove all the whitespaces of input
+    newField = event.target.value.replace(/\s/g, '');
+    if (newField === '') {
+      console.log('true');
+    } else {
+      this.collection[0].push(newField);
+      console.log(this.collection[0]);
+      // make default datatype of new field as 'string'
+      this.dataTypes[newField] = 'string';
+      console.log(this.dataTypes);
+    }
+    this.newField = null;
   }
 }
