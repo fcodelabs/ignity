@@ -512,6 +512,7 @@ export class DataComponent implements OnInit {
   addField(event) {
     // event use to get new field name,newField global variable is only using to clear input box
     let newField = '';
+    const connection = this.firestore.collection('appData').doc(this.docId);
     console.log(event.target.value);
     // remove all the whitespaces of input
     newField = event.target.value.replace(/\s/g, '');
@@ -523,6 +524,12 @@ export class DataComponent implements OnInit {
       // make default datatype of new field as 'string'
       this.dataTypes[newField] = 'string';
       console.log(this.dataTypes);
+      // update firestore
+      const data = {
+        fields : this.collection[0],
+        datatypes : this.dataTypes
+      };
+      connection.update(data);
     }
     this.newField = null;
   }
