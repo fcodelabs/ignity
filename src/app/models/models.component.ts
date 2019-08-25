@@ -17,6 +17,8 @@ export class ModelsComponent implements OnInit {
  collection = '';
  result;
  modelList = [];
+ modelIdList = [];
+ modelNameList = [];
  data = [];
   constructor(public dialog: MatDialog,
               private router: Router,
@@ -29,6 +31,8 @@ export class ModelsComponent implements OnInit {
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
           console.log(doc.id, '=>', doc.data());
+          this.modelIdList.push(doc.id);
+          this.modelNameList.push(doc.data().path)
           this.modelList.push(doc);
         });
         console.log(this.modelList);
@@ -62,19 +66,23 @@ export class ModelsComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result == null);
       if (!(result == null)) {
-        console.log(result.name);
+
+        if (this.modelIdList.includes(result.name)||(this.modelNameList.includes(result.collection)) ) {
+          console.log(result.name);
+          alert('there is already existing a model with path name "' + result.collection + '" or model name "'+ result.name + '"');
+        } else {
+          const data = {
+            name: result.name,
+            path: result.collection,
+            fields: [],
+            datatypes: {}
+          };
+
+          this.firestore.collection('appData').doc(result.name).set(data);
+
+          return this.router.navigate(['/model-create', result.name]);
+        }
         console.log(result.collection);
-
-        const data = {
-          name: result.name,
-          path: result.collection,
-          fields: [],
-          datatypes: {}
-        };
-
-        this.firestore.collection('appData').doc(result.name).set(data);
-
-        return this.router.navigate(['/model-create', result.name]);
       }
     });
   }
