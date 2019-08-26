@@ -4,6 +4,9 @@ import { DataService } from '../shared/data.service';
 import { FireConnectionService } from '../shared/fire-connection.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+
+import { SelectArrayDatatypeComponent } from './select-array-datatype/select-array-datatype.component';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -36,11 +39,13 @@ export class DataComponent implements OnInit {
   dataTypes = {};
   tableData;
   newField = null;
+  arrayDataType = 'string';
   constructor(private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
               private fire: FireConnectionService,
-              private router: Router) {
+              private router: Router,
+              public dialog: MatDialog) {
     const id = this.route.snapshot.paramMap.get('docId');
     console.log(id);
     this.docId = id;
@@ -500,13 +505,29 @@ export class DataComponent implements OnInit {
   }
 
   updateDataType(eventVal, col) {
+    const connection = this.firestore.collection('appData').doc(this.docId);
     console.log(eventVal);
     console.log(this.dataTypes[col]);
-    const cityRef = this.firestore.collection('appData').doc(this.docId);
-    const data = {
-      datatypes: this.dataTypes,
-    };
-    cityRef.update(data);
+    if (eventVal === 'array') {
+      console.log('selesct data type');
+      this.openDialog();
+      const data = {
+        datatypes: this.dataTypes,
+      };
+      for (const i of this.allData) {
+        i[1][col] = [];
+      }
+      this.allData[1][col] = [];
+      this.tableData[col] = this.arrayDataType;
+      data[col] = this.arrayDataType;
+      connection.update(data);
+    } else {
+      const data = {
+        datatypes: this.dataTypes,
+      };
+      connection.update(data);
+    }
+
   }
 
   addField(event) {
@@ -532,5 +553,18 @@ export class DataComponent implements OnInit {
       connection.update(data);
     }
     this.newField = null;
+  }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
+      width: '250px',
+      data: {arrayDataType: this.arrayDataType}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      this.arrayDataType = result;
+    });
   }
 }
