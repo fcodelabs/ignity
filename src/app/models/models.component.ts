@@ -32,7 +32,7 @@ export class ModelsComponent implements OnInit {
         snapshot.forEach(doc => {
           console.log(doc.id, '=>', doc.data());
           this.modelIdList.push(doc.id);
-          this.modelNameList.push(doc.data().path)
+          this.modelNameList.push(doc.data().path);
           this.modelList.push(doc);
         });
         console.log(this.modelList);
@@ -67,9 +67,9 @@ export class ModelsComponent implements OnInit {
       console.log(result == null);
       if (!(result == null)) {
 
-        if (this.modelIdList.includes(result.name)||(this.modelNameList.includes(result.collection)) ) {
+        if (this.modelIdList.includes(result.name) || (this.modelNameList.includes(result.collection)) ) {
           console.log(result.name);
-          alert('there is already existing a model with path name "' + result.collection + '" or model name "'+ result.name + '"');
+          alert('there is already existing a model with path name "' + result.collection + '" or model name "' + result.name + '"');
         } else {
           const data = {
             name: result.name,
