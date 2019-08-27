@@ -508,19 +508,13 @@ export class DataComponent implements OnInit {
     const connection = this.firestore.collection('appData').doc(this.docId);
     console.log(eventVal);
     console.log(this.dataTypes[col]);
+
     if (eventVal === 'array') {
       console.log('selesct data type');
-      this.openDialog();
-      const data = {
-        datatypes: this.dataTypes,
-      };
+      this.openDialog(eventVal, col);
       for (const i of this.allData) {
         i[1][col] = [];
       }
-      this.allData[1][col] = [];
-      this.tableData[col] = this.arrayDataType;
-      data[col] = this.arrayDataType;
-      connection.update(data);
     } else {
       const data = {
         datatypes: this.dataTypes,
@@ -540,22 +534,28 @@ export class DataComponent implements OnInit {
     if (newField === '') {
       console.log('true');
     } else {
-      this.collection[0].push(newField);
-      console.log(this.collection[0]);
-      // make default datatype of new field as 'string'
-      this.dataTypes[newField] = 'string';
-      console.log(this.dataTypes);
-      // update firestore
-      const data = {
-        fields : this.collection[0],
-        datatypes : this.dataTypes
-      };
-      connection.update(data);
+      if (this.collection[0].includes(newField)) {
+        console.log('already exist field');
+        alert('field "' + newField + '" is already existing. Use different name for new field');
+      } else {
+        this.collection[0].push(newField);
+        console.log(this.collection[0]);
+        // make default datatype of new field as 'string'
+        this.dataTypes[newField] = 'string';
+        console.log(this.dataTypes);
+        // update firestore
+        const data = {
+          fields : this.collection[0],
+          datatypes : this.dataTypes
+        };
+        connection.update(data);
+      }
     }
     this.newField = null;
   }
 
-  openDialog(): void {
+  openDialog(eventVal, col): void {
+    const connection = this.firestore.collection('appData').doc(this.docId);
     const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
       width: '250px',
       data: {arrayDataType: this.arrayDataType}
@@ -565,6 +565,13 @@ export class DataComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       this.arrayDataType = result;
+      const data = {
+        datatypes: this.dataTypes,
+      };
+      this.tableData[col] = this.arrayDataType;
+      data[col] = this.arrayDataType;
+      connection.update(data);
+      this.arrayDataType = 'string';
     });
   }
 }
