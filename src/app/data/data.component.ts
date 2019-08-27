@@ -39,7 +39,7 @@ export class DataComponent implements OnInit {
   dataTypes = {};
   tableData;
   newField = null;
-  arrayDataType = 'string';
+  arrayDataType = 'number';
   constructor(private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -508,19 +508,13 @@ export class DataComponent implements OnInit {
     const connection = this.firestore.collection('appData').doc(this.docId);
     console.log(eventVal);
     console.log(this.dataTypes[col]);
+
     if (eventVal === 'array') {
       console.log('selesct data type');
-      this.openDialog();
-      const data = {
-        datatypes: this.dataTypes,
-      };
+      this.openDialog(eventVal, col);
       for (const i of this.allData) {
         i[1][col] = [];
       }
-      this.allData[1][col] = [];
-      this.tableData[col] = this.arrayDataType;
-      data[col] = this.arrayDataType;
-      connection.update(data);
     } else {
       const data = {
         datatypes: this.dataTypes,
@@ -555,7 +549,8 @@ export class DataComponent implements OnInit {
     this.newField = null;
   }
 
-  openDialog(): void {
+  openDialog(eventVal, col): void {
+    const connection = this.firestore.collection('appData').doc(this.docId);
     const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
       width: '250px',
       data: {arrayDataType: this.arrayDataType}
@@ -565,6 +560,12 @@ export class DataComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       this.arrayDataType = result;
+      const data = {
+        datatypes: this.dataTypes,
+      };
+      this.tableData[col] = this.arrayDataType;
+      data[col] = this.arrayDataType;
+      connection.update(data);
     });
   }
 }
