@@ -39,7 +39,7 @@ export class DataComponent implements OnInit {
   dataTypes = {};
   tableData;
   newField = null;
-  arrayDataType = 'number';
+  arrayDataType = 'string';
   constructor(private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -534,17 +534,22 @@ export class DataComponent implements OnInit {
     if (newField === '') {
       console.log('true');
     } else {
-      this.collection[0].push(newField);
-      console.log(this.collection[0]);
-      // make default datatype of new field as 'string'
-      this.dataTypes[newField] = 'string';
-      console.log(this.dataTypes);
-      // update firestore
-      const data = {
-        fields : this.collection[0],
-        datatypes : this.dataTypes
-      };
-      connection.update(data);
+      if (this.collection[0].includes(newField)) {
+        console.log('already exist field');
+        alert('field "' + newField + '" is already existing. Use different name for new field');
+      } else {
+        this.collection[0].push(newField);
+        console.log(this.collection[0]);
+        // make default datatype of new field as 'string'
+        this.dataTypes[newField] = 'string';
+        console.log(this.dataTypes);
+        // update firestore
+        const data = {
+          fields : this.collection[0],
+          datatypes : this.dataTypes
+        };
+        connection.update(data);
+      }
     }
     this.newField = null;
   }
@@ -566,6 +571,7 @@ export class DataComponent implements OnInit {
       this.tableData[col] = this.arrayDataType;
       data[col] = this.arrayDataType;
       connection.update(data);
+      this.arrayDataType = 'string';
     });
   }
 }
