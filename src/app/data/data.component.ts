@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
 import { SelectArrayDatatypeComponent } from './select-array-datatype/select-array-datatype.component';
+import {MapComponent} from '../model-create/map/map.component';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -567,13 +568,15 @@ export class DataComponent implements OnInit {
         break;
       }
       case 'map': {
+        console.log('map');
+        this.tableData[col] = [];
+        this.openDialogMap(col);
         for (const i of this.allData) {
           i[1][col] = {};
         }
         /* for (const f of this.tableData[entry]) {
           d[f] = '';
         } */
-        console.log('map');
         break;
       }
       case 'array': {
@@ -717,6 +720,51 @@ export class DataComponent implements OnInit {
       data[col] = this.arrayDataType;
       connection.update(data);
       this.arrayDataType = 'string';
+    });
+  }
+
+  openDialogMap(f): void {
+    const mapFields = [{value: ''}];
+
+    const dialogRef = this.dialog.open(MapComponent, {
+      width: '350px',
+      data: {fields: mapFields}
+    });
+    const connection = this.firestore.collection('appData').doc(this.docId);
+    dialogRef.afterClosed().subscribe(result => {
+      // this.result = result;
+      console.log('The dialog was closed');
+      console.log(result == null);
+      const flds = [];
+      if (!(result == null)) {
+        console.log(result.fields);
+        for (const x of result.fields) {
+          if (x.value !== '') {
+            flds.push(x.value);
+          }
+        }
+      } else {
+        return;
+      }
+      const data = {
+        datatypes: this.dataTypes,
+      };
+      this.tableData[f] = flds;
+      const upData = {};
+      for (const i of this.allData) {
+        const con = this.firestore.collection(this.docId).doc(i[0]);
+        const d = {};
+        for (const j of this.tableData[f]){
+          d[j] = '';
+        }
+        i[1][f] = d;
+        upData[f] = d;
+        con.update(upData);
+      }
+      data[f] = flds;
+      connection.update(data);
+      // const cityRef = this.firestore.collection('appData').doc(this.modelName);
+      // cityRef.update(data);
     });
   }
 }
