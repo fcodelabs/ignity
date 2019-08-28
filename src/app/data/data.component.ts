@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { SelectArrayDatatypeComponent } from './select-array-datatype/select-array-datatype.component';
 import {MapComponent} from '../model-create/map/map.component';
+import {OptionSelectionComponent} from '../model-create/option-selection/option-selection.component';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -565,6 +566,10 @@ export class DataComponent implements OnInit {
           upData[col] = false;
           con.update(upData);
         }
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
         break;
       }
       case 'map': {
@@ -644,8 +649,13 @@ export class DataComponent implements OnInit {
         break;
       }
       case 'optionselection': {
-        // dt[entry] = this.tableData[entry][0];
+        this.tableData[col] = [];
+        this.openDialogOptionSelection(col);
         console.log('optionselection');
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
         break;
       }
       default: {
@@ -754,7 +764,7 @@ export class DataComponent implements OnInit {
       for (const i of this.allData) {
         const con = this.firestore.collection(this.docId).doc(i[0]);
         const d = {};
-        for (const j of this.tableData[f]){
+        for (const j of this.tableData[f]) {
           d[j] = '';
         }
         i[1][f] = d;
@@ -763,8 +773,43 @@ export class DataComponent implements OnInit {
       }
       data[f] = flds;
       connection.update(data);
-      // const cityRef = this.firestore.collection('appData').doc(this.modelName);
-      // cityRef.update(data);
+    });
+  }
+
+  openDialogOptionSelection(f) {
+    const options = [{value: ''}];
+    const connection = this.firestore.collection('appData').doc(this.docId);
+    const dialogRef = this.dialog.open(OptionSelectionComponent, {
+      width: '350px',
+      data: {options}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // this.result = result;
+      console.log('The dialog was closed');
+      console.log(result == null);
+      const ops = [];
+      if (!(result == null)) {
+        console.log(result.options);
+        for (const x of result.options) {
+          if (x.value !== '') {
+            ops.push(x.value);
+          }
+        }
+      } else {
+        return;
+      }
+      const upData = {};
+      this.tableData[f] = ops;
+      for (const i of this.allData) {
+        const con = this.firestore.collection(this.docId).doc(i[0]);
+        i[1][f] = ops[0];
+        upData[f] = ops[0];
+        con.update(upData);
+      }
+      const data = {};
+      data[f] = ops;
+      connection.update(data);
     });
   }
 }
