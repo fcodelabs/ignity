@@ -147,6 +147,22 @@ export class DataComponent implements OnInit {
                   }
                   bool = false;
                 } else {
+                  switch (this.dataTypes[x]) {
+                    case 'array': {
+                      console.log('array value type');
+                      console.log(typeof document.data()[x]);
+                      /* switch (document.data()[x]) {
+                        case 'string': {
+
+                        }
+                      } */
+                      break;
+                    }
+                    default: {
+                      console.log(typeof document.data()[x]);
+                      break;
+                    }
+                  }
                   console.log('ok');
                 }
               }
@@ -508,19 +524,148 @@ export class DataComponent implements OnInit {
     const connection = this.firestore.collection('appData').doc(this.docId);
     console.log(eventVal);
     console.log(this.dataTypes[col]);
-
-    if (eventVal === 'array') {
-      console.log('selesct data type');
-      this.openDialog(eventVal, col);
-      for (const i of this.allData) {
-        i[1][col] = [];
+    switch (this.dataTypes[col]) {
+      case 'string': {
+        const upData = {};
+        console.log('string');
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = '';
+          upData[col] = '';
+          con.update(upData);
+        }
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
+        break;
       }
-    } else {
-      const data = {
-        datatypes: this.dataTypes,
-      };
-      connection.update(data);
+      case 'number': {
+        const upData = {};
+        console.log('number');
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = 0;
+          upData[col] = 0;
+          con.update(upData);
+        }
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
+        break;
+      }
+      case 'boolean': {
+        const upData = {};
+        console.log('boolean');
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = false;
+          upData[col] = false;
+          con.update(upData);
+        }
+        break;
+      }
+      case 'map': {
+        for (const i of this.allData) {
+          i[1][col] = {};
+        }
+        /* for (const f of this.tableData[entry]) {
+          d[f] = '';
+        } */
+        console.log('map');
+        break;
+      }
+      case 'array': {
+        const upData = {};
+        console.log('array');
+        console.log('selesct data type');
+        this.openDialogArray(eventVal, col);
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = [];
+          upData[col] = [];
+          con.update(upData);
+        }
+        break;
+      }
+      case 'datetime': {
+        const upData = {};
+        console.log('datetime');
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = '';
+          upData[col] = '';
+          con.update(upData);
+        }
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
+        break;
+      }
+      case 'geopoint': {
+        const upData = {};
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = {
+            longitude: 0,
+            latitude: 0,
+          };
+          upData[col] = {
+            longitude: 0,
+            latitude: 0,
+          };
+          con.update(upData);
+        }
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
+        console.log('geopoint');
+        break;
+      }
+      case 'database': {
+        const upData = {};
+        console.log('database');
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = '';
+          upData[col] = '';
+          con.update(upData);
+        }
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
+        break;
+      }
+      case 'optionselection': {
+        // dt[entry] = this.tableData[entry][0];
+        console.log('optionselection');
+        break;
+      }
+      default: {
+        const upData = {};
+        for (const i of this.allData) {
+          const con = this.firestore.collection(this.docId).doc(i[0]);
+          i[1][col] = '';
+          upData[col] = '';
+          con.update(upData);
+        }
+        console.log('error[default]');
+        const data = {
+          datatypes: this.dataTypes,
+        };
+        connection.update(data);
+        break;
+      }
     }
+
+   /* const data = {
+      datatypes: this.dataTypes,
+    };
+    connection.update(data); */
 
   }
 
@@ -553,8 +698,8 @@ export class DataComponent implements OnInit {
     }
     this.newField = null;
   }
-
-  openDialog(eventVal, col): void {
+// select data type of array
+  openDialogArray(eventVal, col): void {
     const connection = this.firestore.collection('appData').doc(this.docId);
     const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
       width: '250px',
