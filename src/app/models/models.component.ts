@@ -92,12 +92,17 @@ export class ModelsComponent implements OnInit {
   }
 
   onDelete(docId) {
-    for (const entry of this.modelList) {
-      if (entry.id === docId) {
-        const id = this.modelList.indexOf(entry);
-        this.firestore.collection('appData').doc(docId).delete();
-        this.modelList.splice(id, 1);
+    if (confirm('delete "' + docId + '" model ?')) {
+      console.log('ok');
+      for (const entry of this.modelList) {
+        if (entry.id === docId) {
+          const id = this.modelList.indexOf(entry);
+          this.firestore.collection('appData').doc(docId).delete();
+          this.modelList.splice(id, 1);
+        }
       }
+    } else {
+      console.log('cancel');
     }
   }
 

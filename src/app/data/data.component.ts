@@ -491,15 +491,20 @@ export class DataComponent implements OnInit {
   }
 
   remove(rowID) {
-    console.log(rowID);
-    for (const entry of this.collectionData) {
-      if (entry.id === rowID) {
-        const id = this.collectionData.indexOf(entry);
-        this.firestore.collection(this.colId).doc(rowID).delete();
-        this.collectionData.splice(id, 1);
-        this.allData.splice(id, 1);
-        break;
+    if(confirm('Delete "' + rowID + '" and all its descendant properties?')){
+      console.log('ok');
+      console.log(rowID);
+      for (const entry of this.collectionData) {
+        if (entry.id === rowID) {
+          const id = this.collectionData.indexOf(entry);
+          this.firestore.collection(this.colId).doc(rowID).delete();
+          this.collectionData.splice(id, 1);
+          this.allData.splice(id, 1);
+          break;
+        }
       }
+    } else {
+      console.log('cancel');
     }
   }
 
@@ -531,7 +536,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('string');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -546,7 +551,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('number');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = 0;
           upData[col] = 0;
           con.update(upData);
@@ -561,7 +566,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('boolean');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = false;
           upData[col] = false;
           con.update(upData);
@@ -590,7 +595,7 @@ export class DataComponent implements OnInit {
         console.log('selesct data type');
         this.openDialogArray(eventVal, col);
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = [];
           upData[col] = [];
           con.update(upData);
@@ -601,7 +606,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('datetime');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -615,7 +620,7 @@ export class DataComponent implements OnInit {
       case 'geopoint': {
         const upData = {};
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = {
             longitude: 0,
             latitude: 0,
@@ -637,7 +642,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('database');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -661,7 +666,7 @@ export class DataComponent implements OnInit {
       default: {
         const upData = {};
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.docId).doc(i[0]);
+          const con = this.firestore.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -762,7 +767,7 @@ export class DataComponent implements OnInit {
       this.tableData[f] = flds;
       const upData = {};
       for (const i of this.allData) {
-        const con = this.firestore.collection(this.docId).doc(i[0]);
+        const con = this.firestore.collection(this.colId).doc(i[0]);
         const d = {};
         for (const j of this.tableData[f]) {
           d[j] = '';
@@ -802,7 +807,7 @@ export class DataComponent implements OnInit {
       const upData = {};
       this.tableData[f] = ops;
       for (const i of this.allData) {
-        const con = this.firestore.collection(this.docId).doc(i[0]);
+        const con = this.firestore.collection(this.colId).doc(i[0]);
         i[1][f] = ops[0];
         upData[f] = ops[0];
         con.update(upData);
