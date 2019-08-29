@@ -491,15 +491,20 @@ export class DataComponent implements OnInit {
   }
 
   remove(rowID) {
-    console.log(rowID);
-    for (const entry of this.collectionData) {
-      if (entry.id === rowID) {
-        const id = this.collectionData.indexOf(entry);
-        this.firestore.collection(this.colId).doc(rowID).delete();
-        this.collectionData.splice(id, 1);
-        this.allData.splice(id, 1);
-        break;
+    if(confirm('Delete "' + rowID + '" and all its descendant properties?')){
+      console.log('ok');
+      console.log(rowID);
+      for (const entry of this.collectionData) {
+        if (entry.id === rowID) {
+          const id = this.collectionData.indexOf(entry);
+          this.firestore.collection(this.colId).doc(rowID).delete();
+          this.collectionData.splice(id, 1);
+          this.allData.splice(id, 1);
+          break;
+        }
       }
+    } else {
+      console.log('cancel');
     }
   }
 
