@@ -14,7 +14,7 @@ export class FieldComponent implements OnInit {
     {value: 'boolean', viewValue: 'Check Box'},
     {value: 'map', viewValue: 'Map'},
     {value: 'array', viewValue: 'Array'},
-    {value: 'datatime', viewValue: 'Data Time'},
+    {value: 'datetime', viewValue: 'Date Time'},
     {value: 'geopoint', viewValue: 'Geo Point'},
     {value: 'database', viewValue: 'Data Base'},
     {value: 'optionselection', viewValue: 'Option Selection'},
