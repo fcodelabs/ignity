@@ -12,7 +12,7 @@ export class FireConnectionService {
   lst2 = [];
   constructor(public firestore: AngularFirestore) { }
 
-  async getModels(){
+  async getModels() {
     const citiesRef = this.firestore.collection('appData');
     const allCities = citiesRef.get()
       .subscribe(snapshot => {
@@ -23,14 +23,14 @@ export class FireConnectionService {
           console.log(doc.id, '=>', doc.data());
           // console.log(typeof this.lst[0]);
         });
-      })
+      });
     // tslint:disable-next-line:no-unused-expression
     err => {
         console.log('Error getting documents', err);
     };
     // console.log(this.lst[0]);
   }
-  returnModels(){
+  returnModels() {
     this.getModels();
     return this.lst;
   }
@@ -85,11 +85,11 @@ export class FireConnectionService {
     })
     // tslint:disable-next-line:only-arrow-functions
     .catch(function(error) {
-      console.error("Error writing document: ", error);
+      console.error('Error writing document: ', error);
     });
     }
 
-  update(){
+  update() {
     this.washingtonRef = this.firestore.collection('cities').doc('DC');
 
     // Set the "capital" field of the city 'DC'
@@ -116,15 +116,15 @@ export class FireConnectionService {
         } else {
           console.log('Document data:', doc.data());
         }
-      })
+      });
     // tslint:disable-next-line:no-unused-expression
-      err => {
+    err => {
         console.log('Error getting document', err);
       };
     }
 
 
-    getAll(){
+    getAll() {
       const citiesRef = this.firestore.collection('cities');
       const allCities = citiesRef.get()
       .subscribe(snapshot => {
@@ -134,7 +134,7 @@ export class FireConnectionService {
           console.log(doc.id, '=>', doc.data());
           console.log(typeof this.lst[0]);
         });
-      })
+      });
       // tslint:disable-next-line:no-unused-expression
       err => {
         console.log('Error getting documents', err);
