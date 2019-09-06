@@ -13,7 +13,7 @@ export class FireConnectionService {
   constructor(public firestore: AngularFirestore) { }
 
   async getModels(){
-    const citiesRef = this.firestore.collection("appData");
+    const citiesRef = this.firestore.collection('appData');
     const allCities = citiesRef.get()
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
