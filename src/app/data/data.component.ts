@@ -25,7 +25,7 @@ export class DataComponent implements OnInit {
     {value: 'boolean', viewValue: 'Check Box'},
     {value: 'map', viewValue: 'Map'},
     {value: 'array', viewValue: 'Array'},
-    {value: 'datatime', viewValue: 'Data Time'},
+    {value: 'datetime', viewValue: 'Date Time'},
     {value: 'geopoint', viewValue: 'Geo Point'},
     {value: 'database', viewValue: 'Data Base'},
     {value: 'optionselection', viewValue: 'Option Selection'},
@@ -353,6 +353,11 @@ export class DataComponent implements OnInit {
 
     console.log(row[1][col]);
   }
+  test(event, row, col, i) {
+    console.log(row[1][col]);
+    console.log(event.target.value);
+    console.log(row[1][col][i]);
+  }
 
   updateValue(event, row, col) {
     const cityRef = this.firestore.collection(this.colId).doc(row[0]);
@@ -388,6 +393,12 @@ export class DataComponent implements OnInit {
       return;
     }
     if (this.dataTypes[col] === 'optionselection') {
+      console.log(row[1][col]);
+      data[col] = row[1][col];
+      cityRef.update(data);
+      return;
+    }
+    if (this.dataTypes[col] === 'datetime') {
       console.log(row[1][col]);
       data[col] = row[1][col];
       cityRef.update(data);
@@ -491,7 +502,7 @@ export class DataComponent implements OnInit {
   }
 
   remove(rowID) {
-    if(confirm('Delete "' + rowID + '" and all its descendant properties?')){
+    if (confirm('Delete "' + rowID + '" and all its descendant properties?')) {
       console.log('ok');
       console.log(rowID);
       for (const entry of this.collectionData) {

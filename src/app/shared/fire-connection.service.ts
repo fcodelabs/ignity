@@ -6,58 +6,31 @@ import { delay } from 'q';
   providedIn: 'root'
 })
 export class FireConnectionService {
-  public washingtonRef:AngularFirestoreDocument;
-  lst=[];
-  lst1=[];
-  lst2=[];
-  constructor(public firestore:AngularFirestore) { }
+  public washingtonRef: AngularFirestoreDocument;
+  lst = [];
+  lst1 = [];
+  lst2 = [];
+  constructor(public firestore: AngularFirestore) { }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  async getModels(){
-    let citiesRef = this.firestore.collection("appData");
-    let allCities = citiesRef.get()
+  async getModels() {
+    const citiesRef = this.firestore.collection('appData');
+    const allCities = citiesRef.get()
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
           this.lst.push(doc);
-          //console.log(this.lst[0])
-          //console.log(typeof doc.data());
+          // console.log(this.lst[0])
+          // console.log(typeof doc.data());
           console.log(doc.id, '=>', doc.data());
-          //console.log(typeof this.lst[0]);
+          // console.log(typeof this.lst[0]);
         });
-      })
+      });
+    // tslint:disable-next-line:no-unused-expression
     err => {
         console.log('Error getting documents', err);
     };
-    //console.log(this.lst[0]);
+    // console.log(this.lst[0]);
   }
-  returnModels(){
+  returnModels() {
     this.getModels();
     return this.lst;
   }
@@ -100,55 +73,60 @@ export class FireConnectionService {
 
 
 
-  pushData(){
-    this.firestore.collection("cities").doc("DC").set({
-      name: "Los Angeles",
-      state: "CA",
-      country: "USA"
+  pushData() {
+    this.firestore.collection('cities').doc('DC').set({
+      name: 'Los Angeles',
+      state: 'CA',
+      country: 'USA'
     })
+    // tslint:disable-next-line:only-arrow-functions
     .then(function() {
-      console.log("Document successfully written!");
+      console.log('Document successfully written!');
     })
+    // tslint:disable-next-line:only-arrow-functions
     .catch(function(error) {
-      console.error("Error writing document: ", error);
+      console.error('Error writing document: ', error);
     });
     }
 
-  update(){
-    this.washingtonRef = this.firestore.collection("cities").doc("DC");
-    
+  update() {
+    this.washingtonRef = this.firestore.collection('cities').doc('DC');
+
     // Set the "capital" field of the city 'DC'
     return this.washingtonRef.update({
         president: 'Prabhanu G'
     })
+    // tslint:disable-next-line:only-arrow-functions
     .then(function() {
-        console.log("Document successfully updated!");
+        console.log('Document successfully updated!');
     })
+    // tslint:disable-next-line:only-arrow-functions
     .catch(function(error) {
         // The document probably doesn't exist.
-        console.error("Error updating document: ", error);
+        console.error('Error updating document: ', error);
     });
     }
 
-  get(){
-    let cityRef = this.firestore.collection('cities').doc('LA');
-    let getDoc = cityRef.get()
+  get() {
+    const cityRef = this.firestore.collection('cities').doc('LA');
+    const getDoc = cityRef.get()
       .subscribe(doc => {
         if (!doc.exists) {
           console.log('No such document!');
         } else {
           console.log('Document data:', doc.data());
         }
-      })
-      err => {
+      });
+    // tslint:disable-next-line:no-unused-expression
+    err => {
         console.log('Error getting document', err);
       };
     }
-    
-    
-    getAll(){
-      let citiesRef = this.firestore.collection('cities');
-    let allCities = citiesRef.get()
+
+
+    getAll() {
+      const citiesRef = this.firestore.collection('cities');
+      const allCities = citiesRef.get()
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
           this.lst.push(doc.data());
@@ -156,7 +134,8 @@ export class FireConnectionService {
           console.log(doc.id, '=>', doc.data());
           console.log(typeof this.lst[0]);
         });
-      })
+      });
+      // tslint:disable-next-line:no-unused-expression
       err => {
         console.log('Error getting documents', err);
       };

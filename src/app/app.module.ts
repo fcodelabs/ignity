@@ -19,6 +19,7 @@ import { OptionSelectionComponent } from './model-create/option-selection/option
 import {SelectArrayDatatypeComponent} from './data/select-array-datatype/select-array-datatype.component';
 import { AddMapFieldsComponent } from './data/add-map-fields/add-map-fields.component';
 import { OptionSelectionFieldsComponent } from './data/option-selection-fields/option-selection-fields.component';
+import { FireLoginComponent } from './fire-login/fire-login.component';
 
 const config = {
   apiKey: 'AIzaSyDSrdbgebIsyvK4vXeM9JXKAAsY6c-xOqs',
@@ -45,6 +46,7 @@ const config = {
     SelectArrayDatatypeComponent,
     AddMapFieldsComponent,
     OptionSelectionFieldsComponent,
+    FireLoginComponent,
 
   ],
   imports: [

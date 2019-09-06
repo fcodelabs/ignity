@@ -1,0 +1,51 @@
+<div class="container">
+  <mat-toolbar style="background-color: #0093af;color:white; ">
+    <span class="fill-remaining-space"></span>
+    <div>
+      <p style="text-align: center">
+        <span style="font-size: 30px;"><b>IGNITY</b></span>
+        <span style="font-size: 15px;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"><i>Firebase data management tool</i></span>
+      </p>
+    </div>
+    <span class="fill-remaining-space"></span>
+  </mat-toolbar>
+  <div style="margin-right: 25%; margin-left: 25%">
+    <mat-toolbar style="background-color: #f5f0f0">
+      <mat-icon>settings</mat-icon><span style="font-size: 17px">Firebase Details</span>
+      <span class="fill-remaining-space"></span>
+      <button mat-raised-button color="primary" (click)="onSetUp()">Set Up</button>
+    </mat-toolbar>
+  </div>
+  <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;
+   margin-top: 20px; margin-left: 15%; margin-right: 25%;">
+      <mat-form-field style=" width: 400px;">
+        <input matInput placeholder="apiKey" [(ngModel)]="apiKey">
+      </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="authDomain" [(ngModel)]="authDomain">
+    </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="databaseURL" [(ngModel)]="databaseURL">
+    </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="projectId" [(ngModel)]="projectId">
+    </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="storageBucket" [(ngModel)]="storageBucket">
+    </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="messagingSenderId" [(ngModel)]="messagingSenderId">
+    </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="appId" [(ngModel)]="appId">
+    </mat-form-field>
+  </div>
+  <div style="align-items: flex-start">
+  </div>
+</div>
