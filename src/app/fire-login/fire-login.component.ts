@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import {FireConnectionService} from '../shared/fire-connection.service';
 
 @Component({
   selector: 'app-fire-login',
@@ -15,7 +16,8 @@ export class FireLoginComponent implements OnInit {
   storageBucket = 'fir-cms-ae9d0.appspot.com';
   messagingSenderId = '814248522504';
   appId = '1:814248522504:web:dd849efcd11e5a0d';
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+              private fireConnection: FireConnectionService) { }
 
   ngOnInit() {
   }
@@ -28,6 +30,8 @@ export class FireLoginComponent implements OnInit {
     this.firebaseApp.storageBucket = this.storageBucket;
     this.firebaseApp.messagingSenderId = this.messagingSenderId;
     this.firebaseApp.appId = this.appId;
+    this.fireConnection.setfireObj(this.firebaseApp);
+    localStorage.setItem('firebaseData', JSON.stringify(this.firebaseApp));
     return this.router.navigate(['models']);
   }
 }
