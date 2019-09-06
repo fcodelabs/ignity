@@ -9,15 +9,16 @@
     </div>
     <span class="fill-remaining-space"></span>
   </mat-toolbar>
-  <div style="margin: 0px 400px">
+  <div style="margin-right: 25%; margin-left: 25%">
     <mat-toolbar style="background-color: #f5f0f0">
       <mat-icon>settings</mat-icon><span style="font-size: 17px">Firebase Details</span>
       <span class="fill-remaining-space"></span>
       <button mat-raised-button color="primary" (click)="onSetUp()">Set Up</button>
     </mat-toolbar>
   </div>
-  <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 20px">
-      <mat-form-field style="width: 400px">
+  <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;
+   margin-top: 20px; margin-left: 15%; margin-right: 25%;">
+      <mat-form-field style=" width: 400px;">
         <input matInput placeholder="apiKey" [(ngModel)]="apiKey">
       </mat-form-field>
     <br>
