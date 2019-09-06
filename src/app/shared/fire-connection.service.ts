@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { delay } from 'q';
+import * as firebase from 'firebase';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,35 @@ export class FireConnectionService {
   lst = [];
   lst1 = [];
   lst2 = [];
+  fireobj = {};
+  fireName = '';
+  fs;
+  fsboo = false;
+
   constructor(public firestore: AngularFirestore) { }
 
+  // firebase setting up methods (new code for fire connect interface
+  setfireObj(obj) {
+    this.fireobj = obj;
+    this.fireName = obj.appId;
+    this.initfire();
+  }
+
+  getfireobj() {
+    return this.fireobj;
+  }
+
+  initfire() {
+    if (firebase.apps.length) {
+      const len = firebase.apps.length;
+      firebase.initializeApp(this.getfireobj(), this.fireName + (len.toString()));
+      this.fs = firebase.firestore();
+    } else {
+      firebase.initializeApp(this.getfireobj());
+      this.fs = firebase.firestore();
+    }
+  }
+  // old code
   async getModels() {
     const citiesRef = this.firestore.collection('appData');
     const allCities = citiesRef.get()
