@@ -11,7 +11,7 @@ export class FireConnectionService {
   lst = [];
   lst1 = [];
   lst2 = [];
-  fireobj = {};
+  fireObj = {};
   fireName = '';
   fs;
   fsboo = false;
@@ -19,23 +19,24 @@ export class FireConnectionService {
   constructor(public firestore: AngularFirestore) { }
 
   // firebase setting up methods (new code for fire connect interface
-  setfireObj(obj) {
-    this.fireobj = obj;
+  setFireObj(obj) {
+    this.fireObj = obj;
     this.fireName = obj.appId;
-    this.initfire();
+    this.initFire();
   }
 
-  getfireobj() {
-    return this.fireobj;
+  getFireObj() {
+    return this.fireObj;
   }
 
-  initfire() {
+  initFire() {
+    console.log('in initfire()');
     if (firebase.apps.length) {
       const len = firebase.apps.length;
-      firebase.initializeApp(this.getfireobj(), this.fireName + (len.toString()));
+      firebase.initializeApp(this.getFireObj(), this.fireName + (len.toString()));
       this.fs = firebase.firestore();
     } else {
-      firebase.initializeApp(this.getfireobj());
+      firebase.initializeApp(this.getFireObj());
       this.fs = firebase.firestore();
     }
   }
