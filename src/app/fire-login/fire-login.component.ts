@@ -30,7 +30,7 @@ export class FireLoginComponent implements OnInit {
     this.firebaseApp.storageBucket = this.storageBucket;
     this.firebaseApp.messagingSenderId = this.messagingSenderId;
     this.firebaseApp.appId = this.appId;
-    this.fireConnection.setfireObj(this.firebaseApp);
+    this.fireConnection.setFireObj(this.firebaseApp);
     localStorage.setItem('firebaseData', JSON.stringify(this.firebaseApp));
     return this.router.navigate(['models']);
   }
