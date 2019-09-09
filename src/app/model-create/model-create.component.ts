@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FieldComponent } from './field/field.component';
-import { AngularFirestore } from '@angular/fire/firestore';
+// import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { MapComponent } from './map/map.component';
 import { OptionSelectionComponent } from './option-selection/option-selection.component';
@@ -105,7 +105,7 @@ export class ModelCreateComponent implements OnInit {
   }
 
   onBack() {
-    return this.router.navigate(['']);
+    return this.router.navigate(['/models']);
   }
 
   updateValue(event, f) {
