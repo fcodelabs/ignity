@@ -16,7 +16,8 @@ export class FireConnectionService {
   fs;
   fsboo = false;
 
-  constructor(public firestore: AngularFirestore) { }
+  constructor(// public firestore: AngularFirestore
+    ) { }
 
   // firebase setting up methods (new code for fire connect interface
   setFireObj(obj) {
@@ -42,7 +43,7 @@ export class FireConnectionService {
   }
   // old code
   async getModels() {
-    const citiesRef = this.firestore.collection('appData');
+    const citiesRef = this.fs.collection('appData');
     const allCities = citiesRef.get()
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
@@ -103,7 +104,7 @@ export class FireConnectionService {
 
 
   pushData() {
-    this.firestore.collection('cities').doc('DC').set({
+    this.fs.collection('cities').doc('DC').set({
       name: 'Los Angeles',
       state: 'CA',
       country: 'USA'
@@ -119,7 +120,7 @@ export class FireConnectionService {
     }
 
   update() {
-    this.washingtonRef = this.firestore.collection('cities').doc('DC');
+    this.washingtonRef = this.fs.collection('cities').doc('DC');
 
     // Set the "capital" field of the city 'DC'
     return this.washingtonRef.update({
@@ -137,7 +138,7 @@ export class FireConnectionService {
     }
 
   get() {
-    const cityRef = this.firestore.collection('cities').doc('LA');
+    const cityRef = this.fs.collection('cities').doc('LA');
     const getDoc = cityRef.get()
       .subscribe(doc => {
         if (!doc.exists) {
@@ -154,7 +155,7 @@ export class FireConnectionService {
 
 
     getAll() {
-      const citiesRef = this.firestore.collection('cities');
+      const citiesRef = this.fs.collection('cities');
       const allCities = citiesRef.get()
       .subscribe(snapshot => {
         snapshot.forEach(doc => {
