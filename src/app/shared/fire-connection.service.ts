@@ -34,8 +34,8 @@ export class FireConnectionService {
     console.log('in initfire()');
     if (firebase.apps.length) {
       const len = firebase.apps.length;
-      firebase.initializeApp(this.getFireObj(), this.fireName + (len.toString()));
-      this.fs = firebase.firestore();
+      const newFirebase = firebase.initializeApp(this.getFireObj(), this.fireName + (len.toString()));
+      this.fs = newFirebase.firestore();
     } else {
       firebase.initializeApp(this.getFireObj());
       this.fs = firebase.firestore();
