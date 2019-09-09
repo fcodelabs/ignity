@@ -4,7 +4,7 @@ import { ModelComponent } from './model/model.component';
 import { Router } from '@angular/router';
 import { FireConnectionService } from '../shared/fire-connection.service';
 import { DataService } from '../shared/data.service';
-import { AngularFirestore } from '@angular/fire/firestore';
+// import { AngularFirestore } from '@angular/fire/firestore';
 
 
 @Component({
