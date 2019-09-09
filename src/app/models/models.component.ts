@@ -4,6 +4,7 @@ import { ModelComponent } from './model/model.component';
 import { Router } from '@angular/router';
 import { FireConnectionService } from '../shared/fire-connection.service';
 import { DataService } from '../shared/data.service';
+import * as firebase from 'firebase';
 // import { AngularFirestore } from '@angular/fire/firestore';
 
 
@@ -113,6 +114,12 @@ export class ModelsComponent implements OnInit {
     } else {
       console.log('cancel');
     }
+  }
+
+  onSwitchApp() {
+    console.log(firebase.apps.length);
+    localStorage.removeItem('firebaseData');
+    return this.router.navigate(['']);
   }
 
 }
