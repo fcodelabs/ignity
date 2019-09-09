@@ -6,6 +6,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { MapComponent } from './map/map.component';
 import { OptionSelectionComponent } from './option-selection/option-selection.component';
+import {FireConnectionService} from '../shared/fire-connection.service';
 
 @Component({
   selector: 'app-model-create',
@@ -21,17 +22,25 @@ export class ModelCreateComponent implements OnInit {
   dataTypes = {};
   allData = [];
   mapFields = [];
+  fs;
   constructor(public dialog: MatDialog,
               private route: ActivatedRoute,
-              private firestore: AngularFirestore,
-              private router: Router) {
+              // private firestore: AngularFirestore,
+              private router: Router,
+              private fire: FireConnectionService) {
+    if (Object.keys(this.fire.fireObj).length === 0) {
+      const data = JSON.parse(localStorage.getItem('firebaseData'));
+      this.fire.setFireObj(data);
+      console.log('in');
+    }
+    this.fs = fire.fs;
     const modelName = this.route.snapshot.paramMap.get('modelName');
     this.modelName = modelName;
     console.log(this.modelName);
 
-    const cityRef = this.firestore.collection('appData').doc(modelName);
+    const cityRef = this.fs.collection('appData').doc(modelName);
     cityRef.get()
-    .subscribe(doc => {
+    .then(doc => {
       if (!doc.exists) {
         console.log('No such document!');
       } else {
@@ -40,10 +49,10 @@ export class ModelCreateComponent implements OnInit {
         this.dataTypes = doc.data().datatypes;
         this.allData.push(doc.data());
       }
-    }
-    , err => {
-      console.log('Error getting document', err);
-    });
+    })
+      .catch(err => {
+        console.log('Error getting document', err);
+      });
 
   }
 
@@ -67,7 +76,7 @@ export class ModelCreateComponent implements OnInit {
         // let en={};
         // en[result.field]=result.dataType;
         this.dataTypes[result.field] = result.dataType;
-        const cityRef = this.firestore.collection('appData').doc(this.modelName);
+        const cityRef = this.fs.collection('appData').doc(this.modelName);
 
         if (result.dataType === 'array') {
           const data = {};
@@ -101,7 +110,7 @@ export class ModelCreateComponent implements OnInit {
 
   updateValue(event, f) {
     console.log(event.target.value);
-    const cityRef = this.firestore.collection('appData').doc(this.modelName);
+    const cityRef = this.fs.collection('appData').doc(this.modelName);
     console.log(this.allData[0][f]);
     const data = {};
     data[f] = event.target.value;
@@ -146,7 +155,7 @@ export class ModelCreateComponent implements OnInit {
       const data = {};
       this.allData[0][f] = flds;
       data[f] = flds;
-      const cityRef = this.firestore.collection('appData').doc(this.modelName);
+      const cityRef = this.fs.collection('appData').doc(this.modelName);
       cityRef.update(data);
     });
   }
@@ -188,7 +197,7 @@ export class ModelCreateComponent implements OnInit {
       const data = {};
       this.allData[0][f] = ops;
       data[f] = ops;
-      const cityRef = this.firestore.collection('appData').doc(this.modelName);
+      const cityRef = this.fs.collection('appData').doc(this.modelName);
       cityRef.update(data);
     });
   }

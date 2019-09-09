@@ -20,15 +20,22 @@ export class ModelsComponent implements OnInit {
  modelIdList = [];
  modelNameList = [];
  data = [];
+ fs;
   constructor(public dialog: MatDialog,
               private router: Router,
               private fire: FireConnectionService,
               private dataS: DataService,
-              private firestore: AngularFirestore) {
-
-    const citiesRef = this.firestore.collection('appData');
+              // private firestore: AngularFirestore
+  ) {
+    if (Object.keys(this.fire.fireObj).length === 0) {
+      const data = JSON.parse(localStorage.getItem('firebaseData'));
+      this.fire.setFireObj(data);
+      console.log('in');
+    }
+    this.fs = fire.fs;
+    const citiesRef = this.fs.collection('appData');
     citiesRef.get()
-      .subscribe(snapshot => {
+      .then(snapshot => {
         snapshot.forEach(doc => {
           console.log(doc.id, '=>', doc.data());
           this.modelIdList.push(doc.id);
@@ -36,7 +43,9 @@ export class ModelsComponent implements OnInit {
           this.modelList.push(doc);
         });
         console.log(this.modelList);
-      });
+      }).catch(err => {
+      console.log('Error getting documents', err);
+    });
   }
 
   ngOnInit() {
@@ -78,7 +87,7 @@ export class ModelsComponent implements OnInit {
             datatypes: {}
           };
 
-          this.firestore.collection('appData').doc(result.name).set(data);
+          this.fs.collection('appData').doc(result.name).set(data);
 
           return this.router.navigate(['/model-create', result.name]);
         }
@@ -97,7 +106,7 @@ export class ModelsComponent implements OnInit {
       for (const entry of this.modelList) {
         if (entry.id === docId) {
           const id = this.modelList.indexOf(entry);
-          this.firestore.collection('appData').doc(docId).delete();
+          this.fs.collection('appData').doc(docId).delete();
           this.modelList.splice(id, 1);
         }
       }
