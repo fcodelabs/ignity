@@ -42,18 +42,25 @@ export class DataComponent implements OnInit {
   tableData;
   newField = null;
   arrayDataType = 'string';
-  constructor(private firestore: AngularFirestore,
+  fs;
+  constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
               private fire: FireConnectionService,
               private router: Router,
               public dialog: MatDialog) {
+    if (Object.keys(this.fire.fireObj).length === 0) {
+      const data = JSON.parse(localStorage.getItem('firebaseData'));
+      this.fire.setFireObj(data);
+      console.log('in');
+    }
+    this.fs = fire.fs;
     const id = this.route.snapshot.paramMap.get('docId');
     console.log(id);
     this.docId = id;
-    const cityRef = this.firestore.collection('appData').doc(this.docId);
+    const cityRef = this.fs.collection('appData').doc(this.docId);
     const getDoc = cityRef.get()
-      .subscribe(doc => {
+      .then(doc => {
         if (!doc.exists) {
           console.log('No such document!');
         } else {
@@ -65,14 +72,14 @@ export class DataComponent implements OnInit {
           this.tableData = doc.data();
           console.log('fire lst1');
 
-          const citiesRef = this.firestore.collection(doc.data().path);
+          const citiesRef = this.fs.collection(doc.data().path);
           const allCities = citiesRef.get()
-          .subscribe(snapshot => {
+          .then(snapshot => {
             snapshot.forEach(document => {
               let bool = true;
               const localData = document.data();
               // check all the fields are in the docs
-              const Ref = this.firestore.collection(this.colId).doc(document.id);
+              const Ref = this.fs.collection(this.colId).doc(document.id);
               const data = {};
               for (const x of this.tableData.fields) {
                 if (document.data()[x] == null) {
@@ -280,7 +287,7 @@ export class DataComponent implements OnInit {
     }
   }
   updateValueG(event, row, col, p) {
-    const cityRef = this.firestore.collection(this.colId).doc(row[0]);
+    const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
     const point = {
       latitude: 0,
@@ -322,7 +329,7 @@ export class DataComponent implements OnInit {
     }
     if (this.tableData[col] === 'boolean') {
       row[1][col].push(false);
-      const cityRef = this.firestore.collection(this.colId).doc(row[0]);
+      const cityRef = this.fs.collection(this.colId).doc(row[0]);
       const data = {};
       data[col] = row[1][col];
       cityRef.update(data);
@@ -346,7 +353,7 @@ export class DataComponent implements OnInit {
       row[1][col].splice(i, 1);
       row[1][col].splice(i, 0, 'true' === event.target.value);
     }
-    const cityRef = this.firestore.collection(this.colId).doc(row[0]);
+    const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
     data[col] = row[1][col];
     cityRef.update(data);
@@ -360,7 +367,7 @@ export class DataComponent implements OnInit {
   }
 
   updateValue(event, row, col) {
-    const cityRef = this.firestore.collection(this.colId).doc(row[0]);
+    const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
     if (this.dataTypes[col] === 'boolean') {
       console.log(event.target.textContent);
@@ -477,15 +484,15 @@ export class DataComponent implements OnInit {
         }
       }
     }
-    const addDoc = this.firestore.collection(this.colId).add(
+    const addDoc = this.fs.collection(this.colId).add(
       dt
     ).then(ref => {
       console.log('Added document with ID: ', ref.id);
       newAddDoc = ref.id;
       // this.collectionData.push(addDoc);
-      const cityRef = this.firestore.collection(this.colId).doc(newAddDoc);
+      const cityRef = this.fs.collection(this.colId).doc(newAddDoc);
       const getDoc = cityRef.get()
-      .subscribe(doc => {
+      .then(doc => {
         if (!doc.exists) {
           console.log('No such document!');
         } else {
@@ -508,7 +515,7 @@ export class DataComponent implements OnInit {
       for (const entry of this.collectionData) {
         if (entry.id === rowID) {
           const id = this.collectionData.indexOf(entry);
-          this.firestore.collection(this.colId).doc(rowID).delete();
+          this.fs.collection(this.colId).doc(rowID).delete();
           this.collectionData.splice(id, 1);
           this.allData.splice(id, 1);
           break;
@@ -524,12 +531,12 @@ export class DataComponent implements OnInit {
   }
 
   onHome() {
-    return this.router.navigate(['']);
+    return this.router.navigate(['/models']);
   }
 
   updateCheckBox(row, col) {
     console.log(!row[1][col]);
-    const cityRef = this.firestore.collection(this.colId).doc(row[0]);
+    const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
     console.log(row[0]);
     console.log(col);
@@ -539,7 +546,7 @@ export class DataComponent implements OnInit {
   }
 
   updateDataType(eventVal, col) {
-    const connection = this.firestore.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('appData').doc(this.docId);
     console.log(eventVal);
     console.log(this.dataTypes[col]);
     switch (this.dataTypes[col]) {
@@ -547,7 +554,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('string');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -562,7 +569,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('number');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = 0;
           upData[col] = 0;
           con.update(upData);
@@ -577,7 +584,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('boolean');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = false;
           upData[col] = false;
           con.update(upData);
@@ -606,7 +613,7 @@ export class DataComponent implements OnInit {
         console.log('selesct data type');
         this.openDialogArray(eventVal, col);
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = [];
           upData[col] = [];
           con.update(upData);
@@ -617,7 +624,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('datetime');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -631,7 +638,7 @@ export class DataComponent implements OnInit {
       case 'geopoint': {
         const upData = {};
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = {
             longitude: 0,
             latitude: 0,
@@ -653,7 +660,7 @@ export class DataComponent implements OnInit {
         const upData = {};
         console.log('database');
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -677,7 +684,7 @@ export class DataComponent implements OnInit {
       default: {
         const upData = {};
         for (const i of this.allData) {
-          const con = this.firestore.collection(this.colId).doc(i[0]);
+          const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = '';
           upData[col] = '';
           con.update(upData);
@@ -701,7 +708,7 @@ export class DataComponent implements OnInit {
   addField(event) {
     // event use to get new field name,newField global variable is only using to clear input box
     let newField = '';
-    const connection = this.firestore.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('appData').doc(this.docId);
     console.log(event.target.value);
     // remove all the whitespaces of input
     newField = event.target.value.replace(/\s/g, '');
@@ -729,7 +736,7 @@ export class DataComponent implements OnInit {
   }
 // select data type of array
   openDialogArray(eventVal, col): void {
-    const connection = this.firestore.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('appData').doc(this.docId);
     const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
       width: '250px',
       data: {arrayDataType: this.arrayDataType}
@@ -756,7 +763,7 @@ export class DataComponent implements OnInit {
       width: '350px',
       data: {fields: mapFields}
     });
-    const connection = this.firestore.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('appData').doc(this.docId);
     dialogRef.afterClosed().subscribe(result => {
       // this.result = result;
       console.log('The dialog was closed');
@@ -778,7 +785,7 @@ export class DataComponent implements OnInit {
       this.tableData[f] = flds;
       const upData = {};
       for (const i of this.allData) {
-        const con = this.firestore.collection(this.colId).doc(i[0]);
+        const con = this.fs.collection(this.colId).doc(i[0]);
         const d = {};
         for (const j of this.tableData[f]) {
           d[j] = '';
@@ -794,7 +801,7 @@ export class DataComponent implements OnInit {
 
   openDialogOptionSelection(f) {
     const options = [{value: ''}];
-    const connection = this.firestore.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('appData').doc(this.docId);
     const dialogRef = this.dialog.open(OptionSelectionComponent, {
       width: '350px',
       data: {options}
@@ -818,7 +825,7 @@ export class DataComponent implements OnInit {
       const upData = {};
       this.tableData[f] = ops;
       for (const i of this.allData) {
-        const con = this.firestore.collection(this.colId).doc(i[0]);
+        const con = this.fs.collection(this.colId).doc(i[0]);
         i[1][f] = ops[0];
         upData[f] = ops[0];
         con.update(upData);

@@ -55,7 +55,7 @@ const config = {
     MaterialModule,
     FormsModule,
     BrowserAnimationsModule,
-    AngularFireModule.initializeApp(config),
+    // AngularFireModule.initializeApp(config),
     AngularFirestoreModule
   ],
   exports: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent, SelectArrayDatatypeComponent,
