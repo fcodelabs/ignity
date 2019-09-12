@@ -111,6 +111,12 @@
                         <span *ngSwitchCase="'datetime'">
                             <input type="datetime-local" name="date-time" [(ngModel)]="row[1][col]" (blur)="updateValue($event,row,col)">
                         </span>
+                        <!--Data base-->
+                        <span *ngSwitchCase="'database'">
+                            <td contenteditable="true"  (blur)="updateRef($event,row,col)"  style="width: 100%; height:100%;">
+                              {{row[1][col].path}}
+                            </td>
+                        </span>
                         <!--Default-->
                         <span *ngSwitchDefault>
                             <td contenteditable="true"  (blur)="updateValue($event,row,col)"  style="width: 100%; height:100%;">

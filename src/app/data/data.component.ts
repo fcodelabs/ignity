@@ -336,6 +336,16 @@ export class DataComponent implements OnInit {
     }
   }
 
+  updateRef(event, row, col) {
+    console.log(row[1][col]);
+    console.log(row[1][col].path);
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    console.log(event.target.textContent);
+    data[col] = this.fs.doc(event.target.textContent);
+    connection.update(data);
+  }
+
   updateValueArray(event, row, col, i) {
     // row[1][col][i]=event.target.value;
     if (this.tableData[col] === 'string') {
