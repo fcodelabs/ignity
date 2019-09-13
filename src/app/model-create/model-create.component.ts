@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { MapComponent } from './map/map.component';
 import { OptionSelectionComponent } from './option-selection/option-selection.component';
 import {FireConnectionService} from '../shared/fire-connection.service';
+import {DatabaseComponent} from './database/database.component';
 
 @Component({
   selector: 'app-model-create',
@@ -91,6 +92,10 @@ export class ModelCreateComponent implements OnInit {
         if (result.dataType === 'optionselection') {
           this.allData[0][result.field] = [];
           this.openDialogOptionSelection(result.field);
+        }
+        if (result.dataType === 'database') {
+          this.allData[0][result.field] = '';
+          this.openDialogDatabase(result.field);
         }
 
         cityRef.update({fields: this.fields});
@@ -202,70 +207,23 @@ export class ModelCreateComponent implements OnInit {
     });
   }
 
+  openDialogDatabase(f): void {
+    const refCollection = this.allData[0][f];
+    const dialogRef = this.dialog.open(DatabaseComponent, {
+      width: '250px',
+      data: {col: refCollection}
+    });
 
-  /*add(){
-    let newAddDoc='';
-    let fields=this.collection[0];
-    var dt = {};
-    for (let entry of fields) {
-      switch(this.dataTypes[entry]) {
-        case "string": {
-          dt[entry] = "";
-          console.log("string");
-          break;
-        }
-        case "number": {
-          dt[entry] = 0;
-          console.log("number");
-          break;
-        }
-        case "boolean": {
-          dt[entry] = false;
-          console.log("boolean");
-          break;
-        }
-        case "map": {
-          let d={}
-          for (let f of this.tableData[entry]){
-            d[f]='';
-          }
-          dt[entry] = d;
-          console.log("map");
-          break;
-        }
-        case "array": {
-          dt[entry] = [];
-          console.log("array");
-          break;
-        }
-        case "datetime": {
-          dt[entry] = "";
-          console.log("datetime");
-          break;
-        }
-        case "geopoint": {
-          let gp={};
-          gp['longitude']=0;
-          gp['latitude']=0;
-          dt[entry] = gp;
-          console.log("geopoint");
-          break;
-        }
-        case "database": {
-          dt[entry] = "";
-          console.log("database");
-          break;
-        }
-        case "optionselection": {
-          dt[entry] = this.tableData[entry][0];
-          console.log("optionselection");
-          break;
-        }
-        default:{
-          dt[entry] = "";
-          console.log("error[default]");
-          break;
-        }
-      }
-    }*/
+    dialogRef.afterClosed().subscribe(result => {
+      this.result = result;
+      console.log('The dialog was closed');
+      console.log(result);
+      const data = {};
+      this.allData[0][f] = result;
+      data[f] = result;
+      const cityRef = this.fs.collection('appData').doc(this.modelName);
+      cityRef.update(data);
+    });
+  }
+
 }

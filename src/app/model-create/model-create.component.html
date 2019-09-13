@@ -22,7 +22,7 @@
                 <div style="width: 75%; margin: 30px;padding: 0px 5px">
                     <div style="margin-top:10px" *ngFor="let f of fields">
                         <mat-card>
-                            <span>{{f}}</span> 
+                            <span>{{f}}</span>
                             [<span>{{dataTypes[f]}}</span>]
                             <span *ngIf="dataTypes[f]=='array'" >
                                     <select [(ngModel)]="allData[0][f]" (change)="updateValue($event,f)" required>
@@ -42,6 +42,11 @@
                                 [<span *ngFor="let op of allData[0][f]">
                                         {{op}}
                                     </span>]
+                            </span>
+                            <span *ngIf="dataTypes[f]=='database'">
+                              [collection: <span>
+                                      {{allData[0][f]}}
+                                  </span>]
                             </span>
                         </mat-card>
                     </div>
@@ -64,5 +69,5 @@
                 </div>
             </div>
         </div>
-        
+
     </div>
