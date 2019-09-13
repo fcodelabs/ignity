@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SelectArrayDatatypeComponent } from './select-array-datatype/select-array-datatype.component';
 import {MapComponent} from '../model-create/map/map.component';
 import {OptionSelectionComponent} from '../model-create/option-selection/option-selection.component';
+import * as firebase from 'firebase';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -43,6 +44,7 @@ export class DataComponent implements OnInit {
   newField = null;
   arrayDataType = 'string';
   fs;
+  collectionDocs = {};
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -70,6 +72,22 @@ export class DataComponent implements OnInit {
           this.colId = doc.data().path;
           this.dataTypes = doc.data().datatypes;
           this.tableData = doc.data();
+          // check data type and if data type == database load all the doc of collection
+          for (const x in this.dataTypes) {
+            if (this.dataTypes[x] === 'database') {
+              const docs = [];
+              console.log(this.tableData[x]);
+              this.fs.collection(this.tableData[x]).get()
+                .then(snapshot => {
+                  snapshot.forEach(document => {
+                    console.log(document.id);
+                    docs.push(this.tableData[x] + '/' + document.id);
+                  });
+                });
+              this.collectionDocs[x] = docs;
+            }
+          }
+          console.log(this.collectionDocs);
           console.log('fire lst1');
 
           const citiesRef = this.fs.collection(doc.data().path);
@@ -126,12 +144,12 @@ export class DataComponent implements OnInit {
                       break;
                     }
                     case 'geopoint': {
-                      const gp = {
+                      /* const gp = {
                         longitude: 0,
                         latitude: 0,
-                      };
-                      data[x] = gp;
-                      localData[x] = gp;
+                      };*/
+                      data[x] = new firebase.firestore.GeoPoint(0, 0);
+                      localData[x] = new firebase.firestore.GeoPoint(0, 0);
                       console.log('geopoint');
                       break;
                     }
@@ -254,16 +272,6 @@ export class DataComponent implements OnInit {
 }*/
 
   ngOnInit() {
-
-
-    // this.dataFields=this.collection[0];
-    // this.dataS.currentData.subscribe(data=>this.dataN=data);
-
-    // console.log(!(this.dataN.length==0));
-    /*if(!(this.dataN.length==0)){
-      console.log('a');
-      this.dataX=this.dataN;
-    }*/
   }
   dataf() {
     console.log(this.dataFields);
@@ -302,7 +310,7 @@ export class DataComponent implements OnInit {
         }
       }*/
       // console.log(this.collectionData[id].data());
-      row[1][col].longitude = +event.target.value;
+      // row[1][col].longitude = +event.target.value;
     } else {
       point.latitude = +event.target.value;
       point.longitude = row[1][col].longitude;
@@ -311,10 +319,10 @@ export class DataComponent implements OnInit {
           id =this.collectionData.indexOf(doc);
         }
       }*/
-      row[1][col].latitude = +event.target.value;
+      // row[1][col].latitude = +event.target.value;
     }
 
-    data[col] = point;
+    data[col] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
     cityRef.update(data);
 
   }
@@ -334,6 +342,17 @@ export class DataComponent implements OnInit {
       data[col] = row[1][col];
       cityRef.update(data);
     }
+  }
+
+  updateDatabaseRef(event, row, col) {
+    console.log(row[1][col]);
+    // console.log(row[1][col].path);
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    console.log(event);
+    row[1][col] = this.fs.doc(event);
+    data[col] = this.fs.doc(event);
+    connection.update(data);
   }
 
   updateValueArray(event, row, col, i) {
@@ -459,11 +478,11 @@ export class DataComponent implements OnInit {
           break;
         }
         case 'geopoint': {
-          const gp = {
+          /* const gp = {
             longitude: 0,
             latitude: 0,
-          };
-          dt[entry] = gp;
+          };*/
+          dt[entry] = new firebase.firestore.GeoPoint(0, 0);
           console.log('geopoint');
           break;
         }
@@ -639,14 +658,8 @@ export class DataComponent implements OnInit {
         const upData = {};
         for (const i of this.allData) {
           const con = this.fs.collection(this.colId).doc(i[0]);
-          i[1][col] = {
-            longitude: 0,
-            latitude: 0,
-          };
-          upData[col] = {
-            longitude: 0,
-            latitude: 0,
-          };
+          i[1][col] = new firebase.firestore.GeoPoint(0, 0);
+          upData[col] = new firebase.firestore.GeoPoint(0, 0);
           con.update(upData);
         }
         const data = {
