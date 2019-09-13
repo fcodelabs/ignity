@@ -43,6 +43,7 @@ export class DataComponent implements OnInit {
   newField = null;
   arrayDataType = 'string';
   fs;
+  collectionDocs = {};
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -70,6 +71,22 @@ export class DataComponent implements OnInit {
           this.colId = doc.data().path;
           this.dataTypes = doc.data().datatypes;
           this.tableData = doc.data();
+          // check data type and if data type == database load all the doc of collection
+          for (const x in this.dataTypes) {
+            if (this.dataTypes[x] === 'database') {
+              const docs = [];
+              console.log(this.tableData[x]);
+              this.fs.collection(this.tableData[x]).get()
+                .then(snapshot => {
+                  snapshot.forEach(document => {
+                    console.log(document.id);
+                    docs.push(this.tableData[x] + '/' + document.id);
+                  });
+                });
+              this.collectionDocs[x] = docs;
+            }
+          }
+          console.log(this.collectionDocs);
           console.log('fire lst1');
 
           const citiesRef = this.fs.collection(doc.data().path);
@@ -336,13 +353,14 @@ export class DataComponent implements OnInit {
     }
   }
 
-  updateRef(event, row, col) {
+  updateDatabaseRef(event, row, col) {
     console.log(row[1][col]);
-    console.log(row[1][col].path);
+    // console.log(row[1][col].path);
     const connection = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
-    console.log(event.target.textContent);
-    data[col] = this.fs.doc(event.target.textContent);
+    console.log(event);
+    row[1][col] = this.fs.doc(event);
+    data[col] = this.fs.doc(event);
     connection.update(data);
   }
 

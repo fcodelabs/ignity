@@ -23,11 +23,11 @@
             <tr>
                 <th *ngFor="let col of collection[0]">{{col}}
                     <span style="float: right">
-                                <mat-select [(ngModel)]="dataTypes[col]" (selectionChange)="updateDataType($event.value,col)">
-                                    <mat-option *ngFor="let dataT of defaultDataTypes" [value]="dataT.value">
-                                        {{dataT.viewValue}}
-                                    </mat-option>
-                                </mat-select>
+                        <mat-select [(ngModel)]="dataTypes[col]" (selectionChange)="updateDataType($event.value,col)">
+                            <mat-option *ngFor="let dataT of defaultDataTypes" [value]="dataT.value">
+                                {{dataT.viewValue}}
+                            </mat-option>
+                        </mat-select>
                     </span>
                     <span style="float: right">{{dataTypes[col]}}</span>
                 </th>
@@ -113,9 +113,20 @@
                         </span>
                         <!--Data base-->
                         <span *ngSwitchCase="'database'">
-                            <td contenteditable="true"  (blur)="updateRef($event,row,col)"  style="width: 100%; height:100%;">
-                              {{row[1][col].path}}
-                            </td>
+                            <!--td contenteditable="true"  (blur)="updateDatabaseRef($event,row,col)"  style="width: 100%; height:100%;">
+                              {{collectionDocs[col]}}
+                            </td-->
+                          <!--span *ngIf="row[1][col]=='';else other_content">
+                            {{row[1][col]}}
+                          </span>
+                          <ng-template #other_content>
+                            {{row[1][col].path}}
+                          </ng-template-->
+                            <mat-select [value]="row[1][col].path" (selectionChange)="updateDatabaseRef($event.value,row,col)">
+                              <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
+                                {{doc}}
+                              </mat-option>
+                            </mat-select>
                         </span>
                         <!--Default-->
                         <span *ngSwitchDefault>
