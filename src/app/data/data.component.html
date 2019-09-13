@@ -99,12 +99,12 @@
                             <div style="margin-bottom: 5px">
                                 Longitude :
                                 <input (blur)="updateValueG($event,row,col,'lon')" type="number" placeholder="longitude"
-                                [(ngModel)]="row[1][col]['longitude']" style="width: 80px;float :right">
+                                [value]="row[1][col].longitude" style="width: 80px;float :right">
                             </div>
                             <div>
                                 Latitude :
                                 <input (blur)="updateValueG($event,row,col,'lat')" type="number" placeholder="latitude"
-                                [ngModel]="row[1][col]['latitude']" style="width: 80px;float :right">
+                                [value]="row[1][col].latitude" style="width: 80px;float :right">
                             </div>
                         </span>
                         <!--Date Time-->

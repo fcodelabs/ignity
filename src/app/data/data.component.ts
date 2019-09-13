@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SelectArrayDatatypeComponent } from './select-array-datatype/select-array-datatype.component';
 import {MapComponent} from '../model-create/map/map.component';
 import {OptionSelectionComponent} from '../model-create/option-selection/option-selection.component';
+import * as firebase from 'firebase';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -143,12 +144,12 @@ export class DataComponent implements OnInit {
                       break;
                     }
                     case 'geopoint': {
-                      const gp = {
+                      /* const gp = {
                         longitude: 0,
                         latitude: 0,
-                      };
-                      data[x] = gp;
-                      localData[x] = gp;
+                      };*/
+                      data[x] = new firebase.firestore.GeoPoint(0, 0);
+                      localData[x] = new firebase.firestore.GeoPoint(0, 0);
                       console.log('geopoint');
                       break;
                     }
@@ -271,16 +272,6 @@ export class DataComponent implements OnInit {
 }*/
 
   ngOnInit() {
-
-
-    // this.dataFields=this.collection[0];
-    // this.dataS.currentData.subscribe(data=>this.dataN=data);
-
-    // console.log(!(this.dataN.length==0));
-    /*if(!(this.dataN.length==0)){
-      console.log('a');
-      this.dataX=this.dataN;
-    }*/
   }
   dataf() {
     console.log(this.dataFields);
@@ -319,7 +310,7 @@ export class DataComponent implements OnInit {
         }
       }*/
       // console.log(this.collectionData[id].data());
-      row[1][col].longitude = +event.target.value;
+      // row[1][col].longitude = +event.target.value;
     } else {
       point.latitude = +event.target.value;
       point.longitude = row[1][col].longitude;
@@ -328,10 +319,10 @@ export class DataComponent implements OnInit {
           id =this.collectionData.indexOf(doc);
         }
       }*/
-      row[1][col].latitude = +event.target.value;
+      // row[1][col].latitude = +event.target.value;
     }
 
-    data[col] = point;
+    data[col] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
     cityRef.update(data);
 
   }
@@ -487,11 +478,11 @@ export class DataComponent implements OnInit {
           break;
         }
         case 'geopoint': {
-          const gp = {
+          /* const gp = {
             longitude: 0,
             latitude: 0,
-          };
-          dt[entry] = gp;
+          };*/
+          dt[entry] = new firebase.firestore.GeoPoint(0, 0);
           console.log('geopoint');
           break;
         }
@@ -667,14 +658,8 @@ export class DataComponent implements OnInit {
         const upData = {};
         for (const i of this.allData) {
           const con = this.fs.collection(this.colId).doc(i[0]);
-          i[1][col] = {
-            longitude: 0,
-            latitude: 0,
-          };
-          upData[col] = {
-            longitude: 0,
-            latitude: 0,
-          };
+          i[1][col] = new firebase.firestore.GeoPoint(0, 0);
+          upData[col] = new firebase.firestore.GeoPoint(0, 0);
           con.update(upData);
         }
         const data = {
