@@ -73,8 +73,14 @@
                                 <input *ngIf="tableData[col]=='number'" [(ngModel)]="x" (blur)="updateValueArray($event,row,col,i)" type="number" [value]="row[1][col]" style="border: none;
                                 background-color:rgba(0, 0, 0, 0);width: 100%; height: 40px;">
 
+                                <mat-select [value]="row[1][col][i].path" (selectionChange)="updateValueArray($event,row,col,i)">
+                                  <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
+                                    {{doc}}
+                                  </mat-option>
+                                </mat-select>
+
                                 <div *ngIf="tableData[col]=='boolean'" style="height: 20px">
-                                    <select [ngModel]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl required>
+                                    <select [value]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl required>
                                         <option value=true >true</option>
                                         <option value=false>false</option>
                                     </select>

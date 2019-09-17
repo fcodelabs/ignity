@@ -157,6 +157,9 @@ export class ModelCreateComponent implements OnInit {
       cityRef = this.fireObj.collection('metadata').doc(this.modelName);
     }
     console.log(this.allData[0][f]);
+    if (event.target.value === 'database') {
+      this.openDialogDatabase(f + 'Ref');
+    }
     const data = {};
     data[f] = event.target.value;
     cityRef.update(data);
