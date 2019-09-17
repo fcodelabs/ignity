@@ -10,6 +10,7 @@ import { SelectArrayDatatypeComponent } from './select-array-datatype/select-arr
 import {MapComponent} from '../model-create/map/map.component';
 import {OptionSelectionComponent} from '../model-create/option-selection/option-selection.component';
 import * as firebase from 'firebase';
+import {DatabasePathComponent} from './database-path/database-path.component';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -727,6 +728,7 @@ export class DataComponent implements OnInit {
       case 'database': {
         const upData = {};
         console.log('database');
+        this.openDialogDatabase(col);
         for (const i of this.allData) {
           const con = this.fs.collection(this.colId).doc(i[0]);
           i[1][col] = '';
@@ -901,6 +903,33 @@ export class DataComponent implements OnInit {
       const data = {};
       data[f] = ops;
       connection.update(data);
+    });
+  }
+
+  openDialogDatabase(f): void {
+    const refCollection = this.allData[0][f];
+    const dialogRef = this.dialog.open(DatabasePathComponent, {
+      width: '300px',
+      data: {col: refCollection}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      const data = {};
+      this.tableData[f] = result;
+      const docs = [];
+      this.fire.fs.collection(result).get()
+        .then(snapshot => {
+          snapshot.forEach(document => {
+            console.log(document.id);
+            docs.push(result + '/' + document.id);
+          });
+        });
+      this.collectionDocs[f] = docs;
+      data[f] = result;
+      const cityRef = this.fs.collection('metadata').doc(this.docId);
+      cityRef.update(data);
     });
   }
 
