@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ModelComponent } from './model/model.component';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { FireConnectionService } from '../shared/fire-connection.service';
 import { DataService } from '../shared/data.service';
 import * as firebase from 'firebase';
@@ -22,10 +22,14 @@ export class ModelsComponent implements OnInit {
  modelNameList = [];
  data = [];
  fs;
+ docId;
+ fireObj;
+ path = '';
   constructor(public dialog: MatDialog,
               private router: Router,
               private fire: FireConnectionService,
               private dataS: DataService,
+              private route: ActivatedRoute
               // private firestore: AngularFirestore
   ) {
     if (Object.keys(this.fire.fireObj).length === 0) {
@@ -33,8 +37,28 @@ export class ModelsComponent implements OnInit {
       this.fire.setFireObj(data);
       console.log('in');
     }
+    const id = this.route.snapshot.paramMap.get('docId');
+    this.docId = id;
+    let citiesRef;
     this.fs = fire.fs;
-    const citiesRef = this.fs.collection('appData');
+    if (id != null) {
+      if (Object.keys(this.fire.fireConStr).length === 0) {
+        this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
+      }
+      const lst = this.fire.fireConStr[id];
+      const obj = this.fs;
+      this.fireObj = this.fire.getFireConnection(lst, obj);
+      if (Object.keys(this.fire.path).length === 0) {
+        this.fire.path = JSON.parse(localStorage.getItem('path'));
+      }
+      console.log(id);
+      this.path = this.fire.getPath(this.docId);
+      citiesRef = this.fireObj.collection('metadata');
+    } else {
+      citiesRef = this.fs.collection('metadata');
+      this.path = 'raw';
+    }
+
     citiesRef.get()
       .then(snapshot => {
         snapshot.forEach(doc => {
@@ -57,12 +81,16 @@ export class ModelsComponent implements OnInit {
     console.log(this.modelList);
   }
 
-  onClick(docId) {
+  onClick(docId, colPath) {
     // fields.unshift('ID');
     console.log(docId);
     // this.data=[docId,fields];
     // this.dataS.changeData(this.data);
-    return this.router.navigate(['/model/data', docId]);
+    if (this.docId == null) {
+      return this.router.navigate(['/models/data', docId]);
+    } else {
+      return this.router.navigate(['/models/data', docId, this.docId, colPath]);
+    }
   }
 
   openDialog(): void {
@@ -88,17 +116,25 @@ export class ModelsComponent implements OnInit {
             datatypes: {}
           };
 
-          this.fs.collection('appData').doc(result.name).set(data);
-
-          return this.router.navigate(['/model-create', result.name]);
+          if ( this.docId == null ) {
+            this.fs.collection('metadata').doc(result.name).set(data);
+            return this.router.navigate(['/model-create', result.name]);
+          } else {
+            this.fireObj.collection('metadata').doc(result.name).set(data);
+            return this.router.navigate(['/model-create', this.docId, result.name, result.collection]);
+          }
         }
         console.log(result.collection);
       }
     });
   }
 
-  onEdit(docId) {
-    return this.router.navigate(['/model-create', docId]);
+  onEdit(docId, colPath) {
+    if (this.docId == null) {
+      return this.router.navigate(['/model-create', docId]);
+    } else {
+      return this.router.navigate(['/model-create', this.docId, docId, colPath]);
+    }
   }
 
   onDelete(docId) {
@@ -107,7 +143,11 @@ export class ModelsComponent implements OnInit {
       for (const entry of this.modelList) {
         if (entry.id === docId) {
           const id = this.modelList.indexOf(entry);
-          this.fs.collection('appData').doc(docId).delete();
+          if (this.docId == null) {
+            this.fs.collection('metadata').doc(docId).delete();
+          } else {
+            this.fireObj.collection('metadata').doc(docId).delete();
+          }
           this.modelList.splice(id, 1);
         }
       }

@@ -9,7 +9,10 @@ const routes: Routes = [
   {path: '', component: FireLoginComponent},
   {path: 'models', component: ModelsComponent},
   {path: 'model-create/:modelName', component: ModelCreateComponent},
-  {path: 'model/data/:docId', component: DataComponent, data: []}
+  {path: 'models/data/:docId', component: DataComponent, data: []},
+  {path: 'models/data/:docId/models', component: ModelsComponent},
+  {path: 'model-create/:docId/:modelName/:colPath', component: ModelCreateComponent},
+  {path: 'models/data/:docId/:subColId/:colPath', component: DataComponent, data: []},
 ];
 
 @NgModule({
