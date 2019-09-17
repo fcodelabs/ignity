@@ -33,8 +33,8 @@ export class DataComponent implements OnInit {
   ];
   dataType = '';
   editField = '';
-  docId = '';
-  colId = '';
+  docId = ''; // document name of the document which is containing all the model data about this model in metadata collection
+  colId = ''; // path name of this collection
   collection = [];
   dataFields = [];
   collectionData = [];
@@ -105,6 +105,7 @@ export class DataComponent implements OnInit {
             this.path = this.path + '/' + this.colId;
           }
           // check data type and if data type == database load all the doc of collection
+          // tslint:disable-next-line:forin
           for (const x in this.dataTypes) {
             if (this.dataTypes[x] === 'database') {
               const docs = [];
@@ -117,6 +118,20 @@ export class DataComponent implements OnInit {
                   });
                 });
               this.collectionDocs[x] = docs;
+            }
+            if (this.dataTypes[x] === 'array') {
+              if (this.tableData[x] === 'database') {
+                const docs = [];
+                console.log(this.tableData[x + 'Ref']);
+                this.fire.fs.collection(this.tableData[x + 'Ref']).get()
+                  .then(snapshot => {
+                    snapshot.forEach(document => {
+                      console.log(document.id);
+                      docs.push(this.tableData[x + 'Ref'] + '/' + document.id);
+                    });
+                  });
+                this.collectionDocs[x] = docs;
+              }
             }
           }
           console.log(this.collectionDocs);
@@ -369,11 +384,14 @@ export class DataComponent implements OnInit {
     }
     if (this.tableData[col] === 'boolean') {
       row[1][col].push(false);
-      const cityRef = this.fs.collection(this.colId).doc(row[0]);
-      const data = {};
-      data[col] = row[1][col];
-      cityRef.update(data);
     }
+    if (this.tableData[col] === 'database') {
+      row[1][col].push('');
+    }
+    const cityRef = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = row[1][col];
+    cityRef.update(data);
   }
 
   updateDatabaseRef(event, row, col) {
@@ -403,6 +421,11 @@ export class DataComponent implements OnInit {
       // row[1][col][i]=!row[1][col][i];
       row[1][col].splice(i, 1);
       row[1][col].splice(i, 0, 'true' === event.target.value);
+    }
+    if (this.tableData[col] === 'database') {
+      row[1][col].splice(i, 1);
+      row[1][col].splice(i, 0, this.fire.fs.doc(event.value) );
+      console.log(row[1][col][i].path);
     }
     const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
