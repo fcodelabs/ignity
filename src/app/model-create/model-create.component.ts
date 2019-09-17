@@ -24,6 +24,10 @@ export class ModelCreateComponent implements OnInit {
   allData = [];
   mapFields = [];
   fs;
+  fireObj;
+  docId;
+  path;
+  colPath;
   constructor(public dialog: MatDialog,
               private route: ActivatedRoute,
               // private firestore: AngularFirestore,
@@ -36,10 +40,32 @@ export class ModelCreateComponent implements OnInit {
     }
     this.fs = fire.fs;
     const modelName = this.route.snapshot.paramMap.get('modelName');
+    const docId = this.route.snapshot.paramMap.get('docId');
+    const colPath = this.route.snapshot.paramMap.get('colPath');
+    this.colPath = colPath;
+    this.docId = docId;
+    let cityRef;
+    if (docId == null ) {
+      cityRef = this.fs.collection('metadata').doc(modelName);
+    } else {
+      if (Object.keys(this.fire.fireConStr).length === 0) {
+        this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
+      }
+      const lst = this.fire.fireConStr[docId];
+      const obj = this.fs;
+      this.fireObj = this.fire.getFireConnection(lst, obj);
+      if (Object.keys(this.fire.path).length === 0) {
+        this.fire.path = JSON.parse(localStorage.getItem('path'));
+      }
+      console.log(docId);
+      this.path = this.fire.getPath(this.docId);
+      cityRef = this.fireObj.collection('metadata').doc(modelName);
+    }
     this.modelName = modelName;
     console.log(this.modelName);
+    console.log(docId);
 
-    const cityRef = this.fs.collection('appData').doc(modelName);
+
     cityRef.get()
     .then(doc => {
       if (!doc.exists) {
@@ -77,7 +103,12 @@ export class ModelCreateComponent implements OnInit {
         // let en={};
         // en[result.field]=result.dataType;
         this.dataTypes[result.field] = result.dataType;
-        const cityRef = this.fs.collection('appData').doc(this.modelName);
+        let cityRef;
+        if (this.docId == null) {
+          cityRef = this.fs.collection('metadata').doc(this.modelName);
+        } else {
+          cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+        }
 
         if (result.dataType === 'array') {
           const data = {};
@@ -106,7 +137,11 @@ export class ModelCreateComponent implements OnInit {
   }
 
   onViewData() {
-    return this.router.navigate(['/model/data', this.modelName]);
+    if (this.docId == null ) {
+      return this.router.navigate(['/models/data', this.modelName]);
+    } else {
+      return this.router.navigate(['/models/data', this.modelName, this.docId, this.colPath]);
+    }
   }
 
   onBack() {
@@ -115,7 +150,12 @@ export class ModelCreateComponent implements OnInit {
 
   updateValue(event, f) {
     console.log(event.target.value);
-    const cityRef = this.fs.collection('appData').doc(this.modelName);
+    let cityRef;
+    if (this.docId == null) {
+      cityRef = this.fs.collection('metadata').doc(this.modelName);
+    } else {
+      cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+    }
     console.log(this.allData[0][f]);
     const data = {};
     data[f] = event.target.value;
@@ -160,7 +200,12 @@ export class ModelCreateComponent implements OnInit {
       const data = {};
       this.allData[0][f] = flds;
       data[f] = flds;
-      const cityRef = this.fs.collection('appData').doc(this.modelName);
+      let cityRef;
+      if (this.docId == null) {
+        cityRef = this.fs.collection('metadata').doc(this.modelName);
+      } else {
+        cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+      }
       cityRef.update(data);
     });
   }
@@ -202,7 +247,12 @@ export class ModelCreateComponent implements OnInit {
       const data = {};
       this.allData[0][f] = ops;
       data[f] = ops;
-      const cityRef = this.fs.collection('appData').doc(this.modelName);
+      let cityRef;
+      if (this.docId == null) {
+        cityRef = this.fs.collection('metadata').doc(this.modelName);
+      } else {
+        cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+      }
       cityRef.update(data);
     });
   }
@@ -221,7 +271,12 @@ export class ModelCreateComponent implements OnInit {
       const data = {};
       this.allData[0][f] = result;
       data[f] = result;
-      const cityRef = this.fs.collection('appData').doc(this.modelName);
+      let cityRef;
+      if (this.docId == null) {
+        cityRef = this.fs.collection('metadata').doc(this.modelName);
+      } else {
+        cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+      }
       cityRef.update(data);
     });
   }

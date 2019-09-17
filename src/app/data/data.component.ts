@@ -45,6 +45,11 @@ export class DataComponent implements OnInit {
   arrayDataType = 'string';
   fs;
   collectionDocs = {};
+  subColId; // Id of th document which is containing sub collections
+  fireObj;
+  path;
+  colPath;
+  // fireCon;
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -60,7 +65,28 @@ export class DataComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('docId');
     console.log(id);
     this.docId = id;
-    const cityRef = this.fs.collection('appData').doc(this.docId);
+    this.colPath = this.route.snapshot.paramMap.get('colPath');
+    this.subColId = this.route.snapshot.paramMap.get('subColId');
+    let cityRef;
+    if (this.subColId == null) {
+      this.path = '';
+    } else {
+      if (Object.keys(this.fire.fireConStr).length === 0) {
+        this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
+      }
+      const lst = this.fire.fireConStr[this.subColId];
+      const obj = this.fs;
+      this.fireObj = this.fire.getFireConnection(lst, obj);
+      if (Object.keys(this.fire.path).length === 0) {
+        this.fire.path = JSON.parse(localStorage.getItem('path'));
+      }
+      console.log(id);
+      // this.path = this.fire.getPath(this.subColId);
+      // this.path = this.path + '/' + this.colPath;
+      this.fs = this.fireObj;
+    }
+    cityRef = this.fs.collection('metadata').doc(this.docId);
+    // this.fireCon = this.fs.collection(this.docId);
     const getDoc = cityRef.get()
       .then(doc => {
         if (!doc.exists) {
@@ -72,6 +98,12 @@ export class DataComponent implements OnInit {
           this.colId = doc.data().path;
           this.dataTypes = doc.data().datatypes;
           this.tableData = doc.data();
+          if (this.subColId == null) {
+            this.path = this.colId;
+          } else {
+            this.path = this.fire.getPath(this.subColId);
+            this.path = this.path + '/' + this.colId;
+          }
           // check data type and if data type == database load all the doc of collection
           for (const x in this.dataTypes) {
             if (this.dataTypes[x] === 'database') {
@@ -221,7 +253,7 @@ export class DataComponent implements OnInit {
 
 
 
-    /*let cityRef = this.firestore.collection('appData').doc(this.docId);
+    /*let cityRef = this.firestore.collection('metadata').doc(this.docId);
     let getDoc = cityRef.get()
       .subscribe(doc => {
         if (!doc.exists) {
@@ -565,7 +597,7 @@ export class DataComponent implements OnInit {
   }
 
   updateDataType(eventVal, col) {
-    const connection = this.fs.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('metadata').doc(this.docId);
     console.log(eventVal);
     console.log(this.dataTypes[col]);
     switch (this.dataTypes[col]) {
@@ -721,7 +753,7 @@ export class DataComponent implements OnInit {
   addField(event) {
     // event use to get new field name,newField global variable is only using to clear input box
     let newField = '';
-    const connection = this.fs.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('metadata').doc(this.docId);
     console.log(event.target.value);
     // remove all the whitespaces of input
     newField = event.target.value.replace(/\s/g, '');
@@ -749,7 +781,7 @@ export class DataComponent implements OnInit {
   }
 // select data type of array
   openDialogArray(eventVal, col): void {
-    const connection = this.fs.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('metadata').doc(this.docId);
     const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
       width: '250px',
       data: {arrayDataType: this.arrayDataType}
@@ -776,7 +808,7 @@ export class DataComponent implements OnInit {
       width: '350px',
       data: {fields: mapFields}
     });
-    const connection = this.fs.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('metadata').doc(this.docId);
     dialogRef.afterClosed().subscribe(result => {
       // this.result = result;
       console.log('The dialog was closed');
@@ -814,7 +846,7 @@ export class DataComponent implements OnInit {
 
   openDialogOptionSelection(f) {
     const options = [{value: ''}];
-    const connection = this.fs.collection('appData').doc(this.docId);
+    const connection = this.fs.collection('metadata').doc(this.docId);
     const dialogRef = this.dialog.open(OptionSelectionComponent, {
       width: '350px',
       data: {options}
@@ -847,5 +879,27 @@ export class DataComponent implements OnInit {
       data[f] = ops;
       connection.update(data);
     });
+  }
+
+  onViewSubCollections(rowID) {
+    console.log(rowID);
+    if (this.subColId == null) {
+      const path = this.colId + '/' + rowID;
+      this.fire.setPath(rowID, path);
+      this.fire.fireConStr[rowID] = [];
+      this.fire.fireConStr[rowID].push(this.colId);
+      this.fire.fireConStr[rowID].push(rowID);
+    } else {
+      let path = this.fire.getPath(this.subColId);
+      path = path + '/' + this.colPath + '/' + rowID;
+      this.fire.setPath(rowID, path);
+      this.fire.fireConStr[rowID] = this.fire.fireConStr[this.subColId];
+      this.fire.fireConStr[rowID].push(this.colId);
+      this.fire.fireConStr[rowID].push(rowID);
+    }
+    const fireCon = this.fs.collection(this.colId).doc(rowID);
+    this.fire.setConnection(rowID, fireCon);
+    localStorage.setItem('fireConStr', JSON.stringify(this.fire.fireConStr));
+    return this.router.navigate(['/models/data', rowID, 'models']);
   }
 }

@@ -15,6 +15,9 @@ export class FireConnectionService {
   fireName = '';
   fs;
   fsboo = false;
+  fireConnection = {};
+  path = {};
+  fireConStr = {};
 
   constructor(// public firestore: AngularFirestore
     ) { }
@@ -40,6 +43,51 @@ export class FireConnectionService {
       firebase.initializeApp(this.getFireObj());
       this.fs = firebase.firestore();
     }
+  }
+  // send sub-collection access
+  setConnection(id, con) {
+    this.fireConnection[id] = con;
+    let cache = [];
+    // tslint:disable-next-line:only-arrow-functions
+    localStorage.setItem('fireConnection', JSON.stringify(this.fireConnection, function(key, value) {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.indexOf(value) !== -1) {
+          // Duplicate reference found, discard key
+          return;
+        }
+        cache.push(value);
+      }
+      return value;
+
+    }));
+  }
+
+  getConnection(id) {
+    return this.fireConnection[id];
+  }
+
+  setPath(id, path) {
+    this.path[id] = path;
+    localStorage.setItem('path', JSON.stringify(this.path));
+  }
+
+  getPath(id) {
+    return this.path[id];
+  }
+
+  // method to create and return firestore connection
+  getFireConnection(lst, obj) {
+    let objf = obj;
+    let i = 0;
+    for (const x of lst) {
+      if ( i % 2 === 0 ) {
+        objf = objf.collection(x);
+      } else {
+        objf = objf.doc(x);
+      }
+      i = i + 1;
+    }
+    return objf;
   }
   // old code
   async getModels() {

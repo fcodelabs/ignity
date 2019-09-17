@@ -13,6 +13,7 @@
     <div style="margin: 0px 100px">
         <mat-toolbar style="background-color: #f5f0f0">
         <mat-icon>list</mat-icon><span style="font-size: 17px">Content Models</span>
+        <span style="font-size: small">({{path}})</span>
         <span class="fill-remaining-space"></span>
         <span><button mat-raised-button color="primary" (click)="openDialog()"><span>+ New Model</span>
         </button></span>
@@ -29,17 +30,17 @@
                 <th style="width: 15px">Delete</th>
             </tr>
             <tr *ngFor="let doc of modelList"  style="cursor: pointer">
-                <td (click)="onClick(doc.id)">
+                <td (click)="onClick(doc.id,doc.data().path)">
                     {{doc.id}}
                 </td>
-                <td (click)="onClick(doc.id)">
+                <td (click)="onClick(doc.id,doc.data().path)">
                     {{doc.data().path}}
                 </td>
-                <td (click)="onClick(doc.id)">
+                <td (click)="onClick(doc.id,doc.data().path)">
                     {{doc.data().fields}}
                 </td>
                 <td>
-                    <button mat-icon-button (click)="onEdit(doc.id)"><mat-icon>edit</mat-icon></button>
+                    <button mat-icon-button (click)="onEdit(doc.id,doc.data().path)"><mat-icon>edit</mat-icon></button>
                 </td>
                 <td>
                     <button mat-icon-button color="warn" (click)="onDelete(doc.id)"><mat-icon>delete</mat-icon></button>
