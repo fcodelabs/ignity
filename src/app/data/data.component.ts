@@ -820,6 +820,9 @@ export class DataComponent implements OnInit {
         datatypes: this.dataTypes,
       };
       this.tableData[col] = this.arrayDataType;
+      if ( result === 'database') {
+        this.openDialogDatabase(col);
+      }
       data[col] = this.arrayDataType;
       connection.update(data);
       this.arrayDataType = 'string';
@@ -907,7 +910,8 @@ export class DataComponent implements OnInit {
   }
 
   openDialogDatabase(f): void {
-    const refCollection = this.allData[0][f];
+    const refCollection = '';
+    console.log(this.tableData[f]);
     const dialogRef = this.dialog.open(DatabasePathComponent, {
       width: '300px',
       data: {col: refCollection}
@@ -917,7 +921,6 @@ export class DataComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       const data = {};
-      this.tableData[f] = result;
       const docs = [];
       this.fire.fs.collection(result).get()
         .then(snapshot => {
@@ -927,8 +930,14 @@ export class DataComponent implements OnInit {
           });
         });
       this.collectionDocs[f] = docs;
-      data[f] = result;
       const cityRef = this.fs.collection('metadata').doc(this.docId);
+      if (this.tableData[f] === 'database') {
+        console.log('success');
+        data[f + 'Ref'] = result;
+      } else {
+        this.tableData[f] = result;
+        data[f] = result;
+      }
       cityRef.update(data);
     });
   }
