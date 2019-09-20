@@ -97,9 +97,9 @@ export class ModelCreateComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result == null);
       if (!(result == null)) {
-        console.log(result.field);
+        console.log(result.field.trim());
         console.log(result.dataType);
-        this.fields.push(result.field);
+        this.fields.push(result.field.trim());
         // let en={};
         // en[result.field]=result.dataType;
         this.dataTypes[result.field] = result.dataType;
@@ -194,7 +194,7 @@ export class ModelCreateComponent implements OnInit {
         console.log(result.fields);
         for (const x of result.fields) {
           if (x.value !== '') {
-            flds.push(x.value);
+            flds.push(x.value.trim());
           }
         }
       } else {
@@ -241,7 +241,7 @@ export class ModelCreateComponent implements OnInit {
         console.log(result.options);
         for (const x of result.options) {
           if (x.value !== '') {
-            ops.push(x.value);
+            ops.push(x.value.trim());
           }
         }
       } else {
@@ -268,7 +268,7 @@ export class ModelCreateComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      this.result = result;
+      this.result = result.trim();
       console.log('The dialog was closed');
       console.log(result);
       const data = {};

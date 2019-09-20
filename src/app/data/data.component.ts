@@ -410,7 +410,7 @@ export class DataComponent implements OnInit {
     // row[1][col][i]=event.target.value;
     if (this.tableData[col] === 'string') {
       row[1][col].splice(i, 1);
-      row[1][col].splice(i, 0, event.target.textContent );
+      row[1][col].splice(i, 0, event.target.textContent.trim() );
     }
     if (this.tableData[col] === 'number') {
       console.log(event.target.value);
@@ -489,8 +489,8 @@ export class DataComponent implements OnInit {
     }
     console.log(row[0]);
     console.log(col);
-    console.log(event.target.textContent);
-    data[col] = event.target.textContent;
+    console.log(event.target.textContent.trim());
+    data[col] = event.target.textContent.trim();
     cityRef.update(data);
   }
 
@@ -782,7 +782,7 @@ export class DataComponent implements OnInit {
     const connection = this.fs.collection('metadata').doc(this.docId);
     console.log(event.target.value);
     // remove all the whitespaces of input
-    newField = event.target.value.replace(/\s/g, '');
+    newField = event.target.value.trim();
     if (newField === '') {
       console.log('true');
     } else {
@@ -847,7 +847,7 @@ export class DataComponent implements OnInit {
         console.log(result.fields);
         for (const x of result.fields) {
           if (x.value !== '') {
-            flds.push(x.value);
+            flds.push(x.value.trim());
           }
         }
       } else {
@@ -919,25 +919,26 @@ export class DataComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      const ref = result.trim();
       console.log('The dialog was closed');
-      console.log(result);
+      console.log(result.trim());
       const data = {};
       const docs = [];
-      this.fire.fs.collection(result).get()
+      this.fire.fs.collection(ref).get()
         .then(snapshot => {
           snapshot.forEach(document => {
             console.log(document.id);
-            docs.push(result + '/' + document.id);
+            docs.push(ref + '/' + document.id);
           });
         });
       this.collectionDocs[f] = docs;
       const cityRef = this.fs.collection('metadata').doc(this.docId);
       if (this.tableData[f] === 'database') {
         console.log('success');
-        data[f + 'Ref'] = result;
+        data[f + 'Ref'] = ref;
       } else {
-        this.tableData[f] = result;
-        data[f] = result;
+        this.tableData[f] = ref;
+        data[f] = ref;
       }
       cityRef.update(data);
     });
