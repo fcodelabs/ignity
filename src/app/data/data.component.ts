@@ -186,8 +186,8 @@ export class DataComponent implements OnInit {
                       break;
                     }
                     case 'datetime': {
-                      data[x] = '';
-                      localData[x] = '';
+                      data[x] = new Date();
+                      localData[x] = new Date();
                       console.log('datetime');
                       break;
                     }
@@ -481,8 +481,9 @@ export class DataComponent implements OnInit {
       return;
     }
     if (this.dataTypes[col] === 'datetime') {
-      console.log(row[1][col]);
-      data[col] = row[1][col];
+      console.log(event.target.value);
+      // console.log(new Date(row[1][col]));
+      data[col] = new Date(event.target.value);
       cityRef.update(data);
       return;
     }
@@ -529,7 +530,7 @@ export class DataComponent implements OnInit {
           break;
         }
         case 'datetime': {
-          dt[entry] = '';
+          dt[entry] = new Date();
           console.log('datetime');
           break;
         }
@@ -700,8 +701,8 @@ export class DataComponent implements OnInit {
         console.log('datetime');
         for (const i of this.allData) {
           const con = this.fs.collection(this.colId).doc(i[0]);
-          i[1][col] = '';
-          upData[col] = '';
+          i[1][col] = new Date();
+          upData[col] = new Date();
           con.update(upData);
         }
         const data = {
@@ -962,5 +963,15 @@ export class DataComponent implements OnInit {
     this.fire.setConnection(rowID, fireCon);
     localStorage.setItem('fireConStr', JSON.stringify(this.fire.fireConStr));
     return this.router.navigate(['/models/data', rowID, 'models']);
+  }
+  secondsToDate(secs) {
+    // console.log(secs === undefined);
+    if (secs === undefined) {
+      return;
+    }
+    const date = new Date(secs * 1000);
+    const dateISO = date.toISOString().split(':');
+    // console.log(dateISO[0] + ':' + dateISO[1]);
+    return dateISO[0] + ':' + dateISO[1];
   }
 }
