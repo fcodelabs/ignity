@@ -18,33 +18,37 @@
   </div>
   <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;
    margin-top: 20px; margin-left: 15%; margin-right: 25%;">
-      <mat-form-field style=" width: 400px;">
-        <input matInput placeholder="apiKey" [(ngModel)]="apiKey">
-      </mat-form-field>
+    <mat-form-field style=" width: 400px;">
+      <input matInput placeholder="Firebase Config JSON" [(ngModel)]="fireConfig" >
+    </mat-form-field>
     <br>
-    <mat-form-field style="width: 400px">
-      <input matInput placeholder="authDomain" [(ngModel)]="authDomain">
+    <!--mat-form-field style=" width: 400px;">
+      <input matInput placeholder="apiKey" [(ngModel)]="apiKey" disabled>
     </mat-form-field>
     <br>
     <mat-form-field style="width: 400px">
-      <input matInput placeholder="databaseURL" [(ngModel)]="databaseURL">
+      <input matInput placeholder="authDomain" [(ngModel)]="authDomain" disabled>
     </mat-form-field>
     <br>
     <mat-form-field style="width: 400px">
-      <input matInput placeholder="projectId" [(ngModel)]="projectId">
+      <input matInput placeholder="databaseURL" [(ngModel)]="databaseURL" disabled>
     </mat-form-field>
     <br>
     <mat-form-field style="width: 400px">
-      <input matInput placeholder="storageBucket" [(ngModel)]="storageBucket">
+      <input matInput placeholder="projectId" [(ngModel)]="projectId" disabled>
     </mat-form-field>
     <br>
     <mat-form-field style="width: 400px">
-      <input matInput placeholder="messagingSenderId" [(ngModel)]="messagingSenderId">
+      <input matInput placeholder="storageBucket" [(ngModel)]="storageBucket" disabled>
     </mat-form-field>
     <br>
     <mat-form-field style="width: 400px">
-      <input matInput placeholder="appId" [(ngModel)]="appId">
+      <input matInput placeholder="messagingSenderId" [(ngModel)]="messagingSenderId" disabled>
     </mat-form-field>
+    <br>
+    <mat-form-field style="width: 400px">
+      <input matInput placeholder="appId" [(ngModel)]="appId" disabled>
+    </mat-form-field-->
   </div>
   <div style="align-items: flex-start">
   </div>
