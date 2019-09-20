@@ -117,7 +117,7 @@
                         </span>
                         <!--Date Time-->
                         <span *ngSwitchCase="'datetime'">
-                            <input type="datetime-local" name="date-time" [(ngModel)]="row[1][col]" (blur)="updateValue($event,row,col)">
+                            <input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)">
                         </span>
                         <!--Data base-->
                         <span *ngSwitchCase="'database'">

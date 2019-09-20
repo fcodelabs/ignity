@@ -16,20 +16,28 @@ export class FireLoginComponent implements OnInit {
   storageBucket = 'fir-cms-ae9d0.appspot.com';
   messagingSenderId = '814248522504';
   appId = '1:814248522504:web:dd849efcd11e5a0d';
+  fireConfig = '';
+
   constructor(private router: Router,
               private fireConnection: FireConnectionService) { }
 
   ngOnInit() {
+    /* this.firebaseApp = eval('(' + this.fireConfig + ')');
+    this.apiKey = this.firebaseApp.apiKey;
+    this.authDomain = this.firebaseApp.authDomain;
+    this.databaseURL = this.firebaseApp.databaseURL;
+    this.projectId = this.firebaseApp.projectId;
+    this.storageBucket = this.firebaseApp.storageBucket;
+    this.messagingSenderId = this.firebaseApp.messagingSenderId;
+    this.appId = this.firebaseApp.appId; */
   }
 
   onSetUp() {
-    this.firebaseApp.apiKey = this.apiKey;
-    this.firebaseApp.authDomain = this.authDomain;
-    this.firebaseApp.databaseURL = this.databaseURL;
-    this.firebaseApp.projectId = this.projectId;
-    this.firebaseApp.storageBucket = this.storageBucket;
-    this.firebaseApp.messagingSenderId = this.messagingSenderId;
-    this.firebaseApp.appId = this.appId;
+    // tslint:disable-next-line:no-eval
+    console.log(eval('(' + this.fireConfig + ')') );
+    // tslint:disable-next-line:no-eval
+    this.firebaseApp = eval ('(' + this.fireConfig + ')');
+    this.apiKey = this.firebaseApp.apiKey;
     this.fireConnection.setFireObj(this.firebaseApp);
     localStorage.setItem('firebaseData', JSON.stringify(this.firebaseApp));
     return this.router.navigate(['models']);
