@@ -8,6 +8,7 @@ import { MapComponent } from './map/map.component';
 import { OptionSelectionComponent } from './option-selection/option-selection.component';
 import {FireConnectionService} from '../shared/fire-connection.service';
 import {DatabaseComponent} from './database/database.component';
+import * as firebase from 'firebase';
 
 @Component({
   selector: 'app-model-create',
@@ -146,6 +147,55 @@ export class ModelCreateComponent implements OnInit {
 
   onBack() {
     return this.router.navigate(['/models']);
+  }
+
+  onDeleteField(f) {
+    console.log(f);
+    console.log(this.allData[0].path);
+    let connection;
+    let connectionMD;
+    if (this.docId == null) {
+      connection = this.fs.collection(this.allData[0].path);
+      connectionMD = this.fs.collection('metadata').doc(this.modelName);
+    } else {
+      connection = this.fireObj.collection(this.allData[0].path);
+      connectionMD = this.fireObj.collection('metadata').doc(this.modelName);
+    }
+    const dataDel = {};
+    dataDel[f] = firebase.firestore.FieldValue.delete();
+    connection.get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          connection.doc(doc.id).update(dataDel);
+          console.log(doc.id, '=>', doc.data());
+        });
+      })
+      .catch(err => {
+        console.log('Error getting documents', err);
+      });
+    if (this.dataTypes[f] === 'array' || this.dataTypes[f] === 'map' || this.dataTypes[f] === 'database'
+      || this.dataTypes[f] === 'optionselection') {
+      if (this.dataTypes[f] === 'array' && this.allData[0][f] === 'database') {
+        const dataDelArrayRef = {};
+        dataDelArrayRef[f + 'Ref'] = firebase.firestore.FieldValue.delete();
+        connectionMD.update(dataDelArrayRef);
+        delete this.allData[0][f + 'Ref'];
+      }
+      const dataDelAMDO = {};
+      dataDelAMDO[f] = firebase.firestore.FieldValue.delete();
+      connectionMD.update(dataDelAMDO);
+      delete this.allData[0][f];
+    }
+    const indexF = this.fields.indexOf(f);
+    this.fields.splice(indexF);
+    delete this.dataTypes[f];
+    const upData = {
+      datatypes : {},
+      fields: []
+    };
+    upData.datatypes = this.dataTypes;
+    upData.fields = this.fields;
+    connectionMD.update(upData);
   }
 
   updateValue(event, f) {
