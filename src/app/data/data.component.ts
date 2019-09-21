@@ -406,11 +406,22 @@ export class DataComponent implements OnInit {
     connection.update(data);
   }
 
+  deleteArrayItem(row, col, i) {
+    console.log(i);
+    row[1][col].splice(i, 1);
+    console.log('delete');
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = row[1][col];
+    connection.update(data);
+  }
+
   updateValueArray(event, row, col, i) {
     // row[1][col][i]=event.target.value;
     if (this.tableData[col] === 'string') {
+      console.log(event.target.value);
       row[1][col].splice(i, 1);
-      row[1][col].splice(i, 0, event.target.textContent.trim() );
+      row[1][col].splice(i, 0, event.target.value.trim() );
     }
     if (this.tableData[col] === 'number') {
       console.log(event.target.value);
