@@ -11,6 +11,7 @@ import {MapComponent} from '../model-create/map/map.component';
 import {OptionSelectionComponent} from '../model-create/option-selection/option-selection.component';
 import * as firebase from 'firebase';
 import {DatabasePathComponent} from './database-path/database-path.component';
+import {DocumentIDComponent} from './document-id/document-id.component';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -50,6 +51,7 @@ export class DataComponent implements OnInit {
   fireObj;
   path;
   colPath;
+  newDocId = '';
   // fireCon;
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
@@ -506,93 +508,7 @@ export class DataComponent implements OnInit {
   }
 
   add() {
-    let newAddDoc = '';
-    const fields = this.collection[0];
-    const dt = {};
-    for (const entry of fields) {
-      switch (this.dataTypes[entry]) {
-        case 'string': {
-          dt[entry] = '';
-          console.log('string');
-          break;
-        }
-        case 'number': {
-          dt[entry] = 0;
-          console.log('number');
-          break;
-        }
-        case 'boolean': {
-          dt[entry] = false;
-          console.log('boolean');
-          break;
-        }
-        case 'map': {
-          const d = {};
-          for (const f of this.tableData[entry]) {
-            d[f] = '';
-          }
-          dt[entry] = d;
-          console.log('map');
-          break;
-        }
-        case 'array': {
-          dt[entry] = [];
-          console.log('array');
-          break;
-        }
-        case 'datetime': {
-          dt[entry] = new Date();
-          console.log('datetime');
-          break;
-        }
-        case 'geopoint': {
-          /* const gp = {
-            longitude: 0,
-            latitude: 0,
-          };*/
-          dt[entry] = new firebase.firestore.GeoPoint(0, 0);
-          console.log('geopoint');
-          break;
-        }
-        case 'database': {
-          dt[entry] = '';
-          console.log('database');
-          break;
-        }
-        case 'optionselection': {
-          dt[entry] = this.tableData[entry][0];
-          console.log('optionselection');
-          break;
-        }
-        default: {
-          dt[entry] = '';
-          console.log('error[default]');
-          break;
-        }
-      }
-    }
-    const addDoc = this.fs.collection(this.colId).add(
-      dt
-    ).then(ref => {
-      console.log('Added document with ID: ', ref.id);
-      newAddDoc = ref.id;
-      // this.collectionData.push(addDoc);
-      const cityRef = this.fs.collection(this.colId).doc(newAddDoc);
-      const getDoc = cityRef.get()
-      .then(doc => {
-        if (!doc.exists) {
-          console.log('No such document!');
-        } else {
-          console.log('Document data:', doc.data());
-          this.collectionData.push(doc);
-          this.allData.push([doc.id, doc.data()]);
-        }
-      });
-    });
-
-
-
-    // console.log(this.collectionData);
+    this.openDialogDocId();
   }
 
   remove(rowID) {
@@ -985,5 +901,126 @@ export class DataComponent implements OnInit {
     const dateISO = date.toISOString().split(':');
     // console.log(dateISO[0] + ':' + dateISO[1]);
     return dateISO[0] + ':' + dateISO[1];
+  }
+
+  openDialogDocId(): void {
+    let newDocId = '';
+    const dialogRef = this.dialog.open(DocumentIDComponent, {
+      width: '300px',
+      data: {id: newDocId}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      let newAddDoc = '';
+      const fields = this.collection[0];
+      const dt = {};
+      for (const entry of fields) {
+        switch (this.dataTypes[entry]) {
+          case 'string': {
+            dt[entry] = '';
+            console.log('string');
+            break;
+          }
+          case 'number': {
+            dt[entry] = 0;
+            console.log('number');
+            break;
+          }
+          case 'boolean': {
+            dt[entry] = false;
+            console.log('boolean');
+            break;
+          }
+          case 'map': {
+            const d = {};
+            for (const f of this.tableData[entry]) {
+              d[f] = '';
+            }
+            dt[entry] = d;
+            console.log('map');
+            break;
+          }
+          case 'array': {
+            dt[entry] = [];
+            console.log('array');
+            break;
+          }
+          case 'datetime': {
+            dt[entry] = new Date();
+            console.log('datetime');
+            break;
+          }
+          case 'geopoint': {
+            /* const gp = {
+              longitude: 0,
+              latitude: 0,
+            };*/
+            dt[entry] = new firebase.firestore.GeoPoint(0, 0);
+            console.log('geopoint');
+            break;
+          }
+          case 'database': {
+            dt[entry] = '';
+            console.log('database');
+            break;
+          }
+          case 'optionselection': {
+            dt[entry] = this.tableData[entry][0];
+            console.log('optionselection');
+            break;
+          }
+          default: {
+            dt[entry] = '';
+            console.log('error[default]');
+            break;
+          }
+        }
+      }
+      console.log('The dialog was closed');
+      console.log(newDocId);
+      if (result !== undefined) {
+        newDocId = result.trim();
+      }
+      if (newDocId === ''){
+        const addDoc = this.fs.collection(this.colId).add(
+          dt
+        ).then(ref => {
+          console.log('Added document with ID: ', ref.id);
+          newAddDoc = ref.id;
+          // this.collectionData.push(addDoc);
+          const cityRef = this.fs.collection(this.colId).doc(newAddDoc);
+          const getDoc = cityRef.get()
+            .then(doc => {
+              if (!doc.exists) {
+                console.log('No such document!');
+              } else {
+                console.log('Document data:', doc.data());
+                this.collectionData.push(doc);
+                this.allData.push([doc.id, doc.data()]);
+              }
+            });
+        });
+      } else {
+        this.fs.collection(this.colId).doc(newDocId).set(dt)
+          .then(success => {
+            console.log('Document successfully written!');
+            this.allData.push([newDocId, dt]);
+            this.fs.collection(this.colId).doc(newDocId).get().then(
+              doc => {
+                if (!doc.exists) {
+                  console.log('No such document!');
+                } else {
+                  this.collectionData.push(doc);
+                  console.log(doc);
+                }
+              }
+            );
+          })
+          // tslint:disable-next-line:only-arrow-functions
+          .catch(function(error) {
+            console.error('Error writing document: ', error);
+          });
+      }
+    });
   }
 }
