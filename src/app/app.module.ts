@@ -22,6 +22,7 @@ import { OptionSelectionFieldsComponent } from './data/option-selection-fields/o
 import { FireLoginComponent } from './fire-login/fire-login.component';
 import { DatabaseComponent } from './model-create/database/database.component';
 import { DatabasePathComponent } from './data/database-path/database-path.component';
+import { DocumentIDComponent } from './data/document-id/document-id.component';
 
 const config = {
   apiKey: 'AIzaSyDSrdbgebIsyvK4vXeM9JXKAAsY6c-xOqs',
@@ -51,6 +52,7 @@ const config = {
     FireLoginComponent,
     DatabaseComponent,
     DatabasePathComponent,
+    DocumentIDComponent,
 
   ],
   imports: [
@@ -63,9 +65,9 @@ const config = {
     AngularFirestoreModule
   ],
   exports: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent, SelectArrayDatatypeComponent,
-    AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent],
+    AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent, DocumentIDComponent],
   entryComponents: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent, SelectArrayDatatypeComponent,
-    AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent],
+    AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent, DocumentIDComponent],
   providers: [],
   bootstrap: [AppComponent]
 })

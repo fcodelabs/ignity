@@ -20,8 +20,8 @@
             </mat-toolbar>
             <div  style="display: flex;flex-direction: row   ;margin-left: 0px; margin-right:0px">
                 <div style="width: 75%; margin: 30px;padding: 0px 5px">
-                    <div style="margin-top:10px" *ngFor="let f of fields">
-                        <mat-card>
+                    <div style="margin-top:10px;" *ngFor="let f of fields">
+                        <mat-card style="display: flex">
                             <span>{{f}}</span>
                             [<span>{{dataTypes[f]}}</span>]
                             <span *ngIf="dataTypes[f]=='array'" >
@@ -48,6 +48,10 @@
                               [collection: <span>
                                       {{allData[0][f]}}
                                   </span>]
+                            </span>
+                            <span class="fill-remaining-space"></span>
+                            <span>
+                              <button mat-icon-button color="warn" (click)="onDeleteField(f)"><mat-icon>delete</mat-icon></button>
                             </span>
                         </mat-card>
                     </div>

@@ -1,0 +1,10 @@
+<h1 mat-dialog-title>Enter Document ID: </h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput [(ngModel)]="data.id">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button [mat-dialog-close]="data.id" cdkFocusInitial>Ok</button>
+</div>

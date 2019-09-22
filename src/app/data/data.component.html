@@ -22,6 +22,7 @@
         <table *ngIf="collectionData !=[]">
             <!--table header start-->
             <tr>
+                <th>Document ID</th>
                 <th *ngFor="let col of collection[0]">{{col}}
                     <span style="float: right">
                         <mat-select [(ngModel)]="dataTypes[col]" (selectionChange)="updateDataType($event.value,col)">
@@ -40,6 +41,9 @@
 
             <!--start of table body-->
             <tr *ngFor="let row of allData">
+                <td>
+                  {{row[0]}}
+                </td>
                 <td *ngFor="let col of collection[0]" style="cursor: pointer"
                     (keyup)="changeValue($event,row,col)" (blur)="updateValue($event,row,col)" #other_content>
                     <span [ngSwitch]="dataTypes[col]">
@@ -66,18 +70,36 @@
                         <span *ngSwitchCase="'array'">
                             <div *ngFor="let x of row[1][col];let i = index"[attr.data-index]="i" style="width: 100%">
 
-                                <div *ngIf="tableData[col]=='string'" style="height: 20px" (blur)="updateValueArray($event,row,col,i)" contenteditable="true" >
-                                    {{x}}
+                                <div *ngIf="tableData[col]=='string'"  >
+                                    <span>
+                                        <input  (blur)="updateValueArray($event,row,col,i)" [value]="row[1][col][i]" style="border:none; height: 40px;
+                                          background-color:rgba(0, 0, 0, 0);width: 85%;">
+                                    </span>
+                                    <span>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                    </span>
                                 </div>
 
-                                <input *ngIf="tableData[col]=='number'" [(ngModel)]="x" (blur)="updateValueArray($event,row,col,i)" type="number" [value]="row[1][col]" style="border: none;
-                                background-color:rgba(0, 0, 0, 0);width: 100%; height: 40px;">
+                                <div *ngIf="tableData[col]=='number'">
+                                    <input  [(ngModel)]="x" (blur)="updateValueArray($event,row,col,i)" type="number" [value]="row[1][col]" style="border: none;
+                                      background-color:rgba(0, 0, 0, 0);width: 100%; height: 40px;">
+                                    <span>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                    </span>
+                                </div>
 
-                                <mat-select [value]="row[1][col][i].path" (selectionChange)="updateValueArray($event,row,col,i)">
-                                  <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
-                                    {{doc}}
-                                  </mat-option>
-                                </mat-select>
+                                <div *ngIf="tableData[col]=='database'">
+                                    <span>
+                                        <mat-select [value]="row[1][col][i].path" (selectionChange)="updateValueArray($event,row,col,i)">
+                                            <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
+                                              {{doc}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </span>
+                                  <span>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                  </span>
+                                </div>
 
                                 <div *ngIf="tableData[col]=='boolean'" style="height: 20px">
                                     <select [value]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl required>
@@ -85,6 +107,9 @@
                                         <option value=false>false</option>
                                     </select>
                                     <!--mat-checkbox  [(ngModel)]="row[1][col][i]" (click)="updateValueArray($event,row,col,i)" ></mat-checkbox--->
+                                    <span>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                    </span>
                                 </div>
                                 <hr>
                             </div>
