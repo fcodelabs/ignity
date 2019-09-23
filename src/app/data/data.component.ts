@@ -1019,6 +1019,8 @@ export class DataComponent implements OnInit {
       console.log(newDocId);
       if (result !== undefined) {
         newDocId = result.trim();
+      } else {
+        return;
       }
       if (newDocId === '') {
         const addDoc = this.fs.collection(this.colId).add(
