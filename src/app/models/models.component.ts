@@ -25,6 +25,8 @@ export class ModelsComponent implements OnInit {
  docId;
  fireObj;
  path = '';
+ superColName;
+ paths = [];
   constructor(public dialog: MatDialog,
               private router: Router,
               private fire: FireConnectionService,
@@ -38,12 +40,15 @@ export class ModelsComponent implements OnInit {
       console.log('in');
     }
     const id = this.route.snapshot.paramMap.get('docId');
+    this.superColName = this.route.snapshot.paramMap.get('superColName');
     this.docId = id;
     let citiesRef;
     this.fs = fire.fs;
     if (id != null) {
       if (Object.keys(this.fire.fireConStr).length === 0) {
         this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
+        this.fire.subColMetadata = JSON.parse(localStorage.getItem('subColMetadata'));
+        this.fire.superColPath = JSON.parse(localStorage.getItem('superColPath'));
       }
       const lst = this.fire.fireConStr[id];
       const obj = this.fs;
@@ -53,11 +58,12 @@ export class ModelsComponent implements OnInit {
       }
       console.log(id);
       this.path = this.fire.getPath(this.docId);
-      citiesRef = this.fireObj.collection('metadata');
+      citiesRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections');
     } else {
       citiesRef = this.fs.collection('metadata');
       this.path = 'raw';
     }
+
 
     citiesRef.get()
       .then(snapshot => {
@@ -71,7 +77,52 @@ export class ModelsComponent implements OnInit {
       }).catch(err => {
       console.log('Error getting documents', err);
     });
+
+    /* for (const col of this.fire.superColPath[this.docId]) {
+      let paths = [];
+      let connection;
+      if (this.paths === [] ) {
+        connection = this.fireObj.collection(col);
+        citiesRef.get()
+          .then(snapshot => {
+            snapshot.forEach(doc => {
+              console.log(doc.id, '=>', doc.data());
+              paths.push(doc.id);
+            });
+          })
+          .catch(err => {
+            console.log('Error getting documents', err);
+          });
+        this.paths = paths;
+        paths = [];
+      } else {
+        for (let path of this.paths) {
+          path = path + '/' + col;
+          paths = paths.concat(this.getAllDocPaths(path));
+        }
+        this.paths = paths;
+        paths = [];
+      }
+    }*/
+
   }
+
+  getAllDocPaths(path) {
+    const paths = [];
+    const connection = this.fireObj.collection(path);
+    connection.get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        console.log(doc.id, '=>', doc.data());
+        paths.push(doc.id);
+      });
+    })
+    .catch(err => {
+      console.log('Error getting documents', err);
+    });
+    return paths;
+  }
+
 
   ngOnInit() {
 
@@ -113,15 +164,25 @@ export class ModelsComponent implements OnInit {
             name: result.name,
             path: result.collection,
             fields: [],
-            datatypes: {}
+            datatypes: {},
+            subCollections : []
           };
+          /* for (const path of this.paths) {
+            this.fs.collection(path + '/' + result.collection).add({});
+          }*/
 
           if ( this.docId == null ) {
             this.fs.collection('metadata').doc(result.name).set(data);
+            this.fs.collection('metadata').doc(this.superColName).update({
+              subCollections: firebase.firestore.FieldValue.arrayUnion(result.name)
+            });
             return this.router.navigate(['/model-create', result.name]);
           } else {
-            this.fireObj.collection('metadata').doc(result.name).set(data);
-            return this.router.navigate(['/model-create', this.docId, result.name, result.collection]);
+            this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(result.name).set(data);
+            this.fs.doc(this.fire.subColMetadata[this.docId]).update({
+              subCollections: firebase.firestore.FieldValue.arrayUnion(result.name)
+            });
+            return this.router.navigate(['/model-create', this.superColName, this.docId, result.name, result.collection]);
           }
         }
         console.log(result.collection);
@@ -133,7 +194,7 @@ export class ModelsComponent implements OnInit {
     if (this.docId == null) {
       return this.router.navigate(['/model-create', docId]);
     } else {
-      return this.router.navigate(['/model-create', this.docId, docId, colPath]);
+      return this.router.navigate(['/model-create', this.superColName, this.docId, docId, colPath]);
     }
   }
 
@@ -146,7 +207,7 @@ export class ModelsComponent implements OnInit {
           if (this.docId == null) {
             this.fs.collection('metadata').doc(docId).delete();
           } else {
-            this.fireObj.collection('metadata').doc(docId).delete();
+            this.fireObj.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(docId).delete();
           }
           this.modelList.splice(id, 1);
         }

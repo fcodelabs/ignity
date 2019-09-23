@@ -29,6 +29,7 @@ export class ModelCreateComponent implements OnInit {
   docId;
   path;
   colPath;
+  superColName;
   constructor(public dialog: MatDialog,
               private route: ActivatedRoute,
               // private firestore: AngularFirestore,
@@ -43,6 +44,7 @@ export class ModelCreateComponent implements OnInit {
     const modelName = this.route.snapshot.paramMap.get('modelName');
     const docId = this.route.snapshot.paramMap.get('docId');
     const colPath = this.route.snapshot.paramMap.get('colPath');
+    this.superColName = this.route.snapshot.paramMap.get('superColName');
     this.colPath = colPath;
     this.docId = docId;
     let cityRef;
@@ -51,7 +53,10 @@ export class ModelCreateComponent implements OnInit {
     } else {
       if (Object.keys(this.fire.fireConStr).length === 0) {
         this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
+        this.fire.subColMetadata = JSON.parse(localStorage.getItem('subColMetadata'));
+        this.fire.superColPath = JSON.parse(localStorage.getItem('superColPath'));
       }
+      console.log(this.superColName);
       const lst = this.fire.fireConStr[docId];
       const obj = this.fs;
       this.fireObj = this.fire.getFireConnection(lst, obj);
@@ -60,7 +65,7 @@ export class ModelCreateComponent implements OnInit {
       }
       console.log(docId);
       this.path = this.fire.getPath(this.docId);
-      cityRef = this.fireObj.collection('metadata').doc(modelName);
+      cityRef = this.fs.collection(this.fire.subColMetadata[docId] + '/subCollections').doc(modelName);
     }
     this.modelName = modelName;
     console.log(this.modelName);
@@ -108,7 +113,7 @@ export class ModelCreateComponent implements OnInit {
         if (this.docId == null) {
           cityRef = this.fs.collection('metadata').doc(this.modelName);
         } else {
-          cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+          cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
         }
 
         if (result.dataType === 'array') {
@@ -159,7 +164,7 @@ export class ModelCreateComponent implements OnInit {
       connectionMD = this.fs.collection('metadata').doc(this.modelName);
     } else {
       connection = this.fireObj.collection(this.allData[0].path);
-      connectionMD = this.fireObj.collection('metadata').doc(this.modelName);
+      connectionMD = this.fs.collection(this.fire.subColMetadata[this.docId]).doc(this.modelName);
     }
     const dataDel = {};
     dataDel[f] = firebase.firestore.FieldValue.delete();
@@ -204,7 +209,7 @@ export class ModelCreateComponent implements OnInit {
     if (this.docId == null) {
       cityRef = this.fs.collection('metadata').doc(this.modelName);
     } else {
-      cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+      cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
     }
     console.log(this.allData[0][f]);
     if (event.target.value === 'database') {
@@ -257,7 +262,7 @@ export class ModelCreateComponent implements OnInit {
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);
       } else {
-        cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+        cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
       }
       cityRef.update(data);
     });
@@ -304,7 +309,7 @@ export class ModelCreateComponent implements OnInit {
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);
       } else {
-        cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+        cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
       }
       cityRef.update(data);
     });
@@ -328,7 +333,7 @@ export class ModelCreateComponent implements OnInit {
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);
       } else {
-        cityRef = this.fireObj.collection('metadata').doc(this.modelName);
+        cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
       }
       cityRef.update(data);
     });
