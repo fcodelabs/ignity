@@ -16,15 +16,7 @@ export class FireLoginComponent implements OnInit {
   storageBucket = 'fir-cms-ae9d0.appspot.com';
   messagingSenderId = '814248522504';
   appId = '1:814248522504:web:dd849efcd11e5a0d';
-  fireConfig = '{\n' +
-    '  apiKey: "AIzaSyDSrdbgebIsyvK4vXeM9JXKAAsY6c-xOqs",\n' +
-    '  authDomain: "fir-cms-ae9d0.firebaseapp.com",\n' +
-    '  databaseURL: "https://fir-cms-ae9d0.firebaseio.com",\n' +
-    '  projectId: "fir-cms-ae9d0",\n' +
-    '  storageBucket: "fir-cms-ae9d0.appspot.com",\n' +
-    '  messagingSenderId: "814248522504",\n' +
-    '  appId: "1:814248522504:web:dd849efcd11e5a0d"\n' +
-    '}';
+  fireConfig = '';
 
   constructor(private router: Router,
               private fireConnection: FireConnectionService) { }

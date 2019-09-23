@@ -18,6 +18,8 @@ export class FireConnectionService {
   fireConnection = {};
   path = {};
   fireConStr = {};
+  subColMetadata = {};
+  superColPath = {};
 
   constructor(// public firestore: AngularFirestore
     ) { }

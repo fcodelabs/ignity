@@ -10,8 +10,8 @@ const routes: Routes = [
   {path: 'models', component: ModelsComponent},
   {path: 'model-create/:modelName', component: ModelCreateComponent},
   {path: 'models/data/:docId', component: DataComponent, data: []},
-  {path: 'models/data/:docId/models', component: ModelsComponent},
-  {path: 'model-create/:docId/:modelName/:colPath', component: ModelCreateComponent},
+  {path: 'models/data/:superColName/:docId/models', component: ModelsComponent},
+  {path: 'model-create/:superColName/:docId/:modelName/:colPath', component: ModelCreateComponent},
   {path: 'models/data/:docId/:subColId/:colPath', component: DataComponent, data: []},
 ];
 
