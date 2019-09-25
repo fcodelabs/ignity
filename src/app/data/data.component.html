@@ -146,8 +146,12 @@
                         </span>
                         <!--Date Time-->
                         <span *ngSwitchCase="'datetime'">
-                            <input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)">
-                        </span>
+                            <!--input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)"-->
+                            <input [value]="row[1][col]"
+                                   [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1"
+                                   (blur)="updateValue($event,row,col)" placeholder="Date Time">
+                            <owl-date-time #dt1 [startAt]="row[1][col]"></owl-date-time>
+                            </span>
                         <!--Data base-->
                         <span *ngSwitchCase="'database'">
                             <!--td contenteditable="true"  (blur)="updateDatabaseRef($event,row,col)"  style="width: 100%; height:100%;">

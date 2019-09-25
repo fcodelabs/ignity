@@ -13,6 +13,7 @@ import * as firebase from 'firebase';
 import {DatabasePathComponent} from './database-path/database-path.component';
 import {DocumentIDComponent} from './document-id/document-id.component';
 import {Location} from '@angular/common';
+
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -56,6 +57,7 @@ export class DataComponent implements OnInit {
   superColName;
   selectedDoc;
   // fireCon;
+  val = new Date(2018, 3, 10, 10, 30, 30);
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
@@ -161,6 +163,10 @@ export class DataComponent implements OnInit {
               const Ref = this.fs.collection(this.colId).doc(document.id);
               const data = {};
               for (const x of this.tableData.fields) {
+                if (this.dataTypes[x] === 'datetime') {
+                  console.log(localData[x].seconds);
+                  localData[x] = new Date(localData[x].seconds * 1000);
+                }
                 if (document.data()[x] == null) {
                   console.log('error');
                   switch (this.dataTypes[x]) {
@@ -506,7 +512,8 @@ export class DataComponent implements OnInit {
     }
     if (this.dataTypes[col] === 'datetime') {
       console.log(event.target.value);
-      // console.log(new Date(row[1][col]));
+      row[1][col] = new Date(event.target.value);
+      console.log(row[1][col]);
       data[col] = new Date(event.target.value);
       cityRef.update(data);
       return;
@@ -970,9 +977,14 @@ export class DataComponent implements OnInit {
       return;
     }
     const date = new Date(secs * 1000);
-    const dateISO = date.toISOString().split(':');
+    // const dateISO = date.toISOString().split(':');
     // console.log(dateISO[0] + ':' + dateISO[1]);
-    return dateISO[0] + ':' + dateISO[1];
+    return date;
+  }
+  saveDate(row, col) {
+    const date = new Date(row[1][col].seconds * 1000);
+    row[1][col] = date;
+    // console.log(date);
   }
 
   openDialogDocId(): void {
