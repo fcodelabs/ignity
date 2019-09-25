@@ -18,6 +18,7 @@
             <mat-icon>list</mat-icon><span style="font-size: 17px">{{docId}}</span>
             <span style="font-size: small">({{path}})</span>
             <span class="fill-remaining-space"></span>
+            <span style="margin-right: 5px"><button mat-raised-button (click)="onSubCollections()">Sub-Collections</button></span>
             <span><button mat-raised-button color="primary" (click)="add()"><span>+ Add Entry</span>
             </button></span>
         </mat-toolbar>
@@ -36,7 +37,7 @@
                     <span style="float: right">{{dataTypes[col]}}</span>
                 </th>
                 <th style="width :100px"><span style="float: right">Remove</span></th>
-                <th style="width :100px"><span style="float: right">Sub-Collections</span></th>
+                <!--th style="width :100px"><span style="float: right">Sub-Collections</span></th-->
                 <th style="width: 100px"><span style="float: right"><input (blur)="addField($event)" [(ngModel)]="newField" placeholder="+ Add new Field"></span></th>
             </tr>
             <!--table header end-->
@@ -174,9 +175,9 @@
                 <td>
                     <button (click)="remove(row[0])" style="float: right" mat-raised-button color="warn"><mat-icon>delete</mat-icon>Remove</button>
                 </td>
-                <td>
+                <!--td>
                     <button mat-raised-button (click)="onViewSubCollections(row[0])">View</button>
-                </td>
+                </td-->
             </tr>
             <!--end of table body-->
         </table>

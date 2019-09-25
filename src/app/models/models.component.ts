@@ -27,6 +27,9 @@ export class ModelsComponent implements OnInit {
  path = '';
  superColName;
  paths = [];
+ allDocs = [];
+ selectedDoc = '';
+ subCollections = [];
   constructor(public dialog: MatDialog,
               private router: Router,
               private fire: FireConnectionService,
@@ -39,26 +42,50 @@ export class ModelsComponent implements OnInit {
       this.fire.setFireObj(data);
       console.log('in');
     }
-    const id = this.route.snapshot.paramMap.get('docId');
+    this.docId = this.route.snapshot.paramMap.get('superColPath');
     this.superColName = this.route.snapshot.paramMap.get('superColName');
-    this.docId = id;
     let citiesRef;
     this.fs = fire.fs;
-    if (id != null) {
-      if (Object.keys(this.fire.fireConStr).length === 0) {
+    if (this.docId != null) {
+      if (Object.keys(this.fire.metadataDocPath).length === 0) {
+        this.fire.metadataDocPath = JSON.parse(localStorage.getItem('metadataDocPath'));
+        this.fire.collectionPath = JSON.parse(localStorage.getItem('collectionPath'));
         this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
-        this.fire.subColMetadata = JSON.parse(localStorage.getItem('subColMetadata'));
-        this.fire.superColPath = JSON.parse(localStorage.getItem('superColPath'));
       }
-      const lst = this.fire.fireConStr[id];
-      const obj = this.fs;
-      this.fireObj = this.fire.getFireConnection(lst, obj);
       if (Object.keys(this.fire.path).length === 0) {
         this.fire.path = JSON.parse(localStorage.getItem('path'));
       }
-      console.log(id);
-      this.path = this.fire.getPath(this.docId);
-      citiesRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections');
+      const fsObj = 'metadata/' + this.fire.metadataDocPath[this.superColName];
+      console.log(fsObj);
+      this.path = this.fire.path[this.superColName];
+      citiesRef = this.fs.collection(fsObj + '/subCollections');
+
+      const connection = this.fs.collection(this.fire.collectionPath[this.superColName]);
+      connection.get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            console.log(doc.id, '=>', doc.data());
+            this.allDocs.push(doc.id);
+          });
+        })
+        .catch(err => {
+          console.log('Error getting documents', err);
+        });
+      console.log(this.allDocs);
+
+      /* const connectionSCMD = this.fs.doc('metadata/' + this.fire.metadataDocPath[this.superColName]);
+      connectionSCMD.get()
+        .then(doc => {
+          if (!doc.exists) {
+            console.log('No such document!');
+          } else {
+            console.log('Document data:', doc.data());
+            this.subCollections = doc.data().subCollections;
+          }
+        })
+        .catch(err => {
+          console.log('Error getting document', err);
+        });*/
     } else {
       citiesRef = this.fs.collection('metadata');
       this.path = 'raw';
@@ -72,12 +99,13 @@ export class ModelsComponent implements OnInit {
           this.modelIdList.push(doc.id);
           this.modelNameList.push(doc.data().path);
           this.modelList.push(doc);
+          this.subCollections.push(doc.id);
         });
         console.log(this.modelList);
       }).catch(err => {
       console.log('Error getting documents', err);
     });
-
+    console.log(this.subCollections);
     /* for (const col of this.fire.superColPath[this.docId]) {
       let paths = [];
       let connection;
@@ -109,7 +137,7 @@ export class ModelsComponent implements OnInit {
 
   getAllDocPaths(path) {
     const paths = [];
-    const connection = this.fireObj.collection(path);
+    const connection = this.fs.collection(path);
     connection.get()
     .then(snapshot => {
       snapshot.forEach(doc => {
@@ -133,14 +161,15 @@ export class ModelsComponent implements OnInit {
   }
 
   onClick(docId, colPath) {
-    // fields.unshift('ID');
     console.log(docId);
-    // this.data=[docId,fields];
-    // this.dataS.changeData(this.data);
     if (this.docId == null) {
-      return this.router.navigate(['/models/data', docId]);
+      return this.router.navigate(['/models/data', docId, colPath]);
     } else {
-      return this.router.navigate(['/models/data', docId, this.docId, colPath]);
+      if (this.selectedDoc === '') {
+        alert('Please Select A Document !');
+      } else {
+        return this.router.navigate(['/models/data', docId, this.docId, colPath, this.superColName, this.selectedDoc]);
+      }
     }
   }
 
@@ -170,16 +199,17 @@ export class ModelsComponent implements OnInit {
           /* for (const path of this.paths) {
             this.fs.collection(path + '/' + result.collection).add({});
           }*/
-
+          this.subCollections.push(result.name);
           if ( this.docId == null ) {
             this.fs.collection('metadata').doc(result.name).set(data);
-            this.fs.collection('metadata').doc(this.superColName).update({
+            /* this.fs.collection('metadata').doc(this.superColName).update({
               subCollections: firebase.firestore.FieldValue.arrayUnion(result.name)
-            });
+            });*/
             return this.router.navigate(['/model-create', result.name]);
           } else {
-            this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(result.name).set(data);
-            this.fs.doc(this.fire.subColMetadata[this.docId]).update({
+            const fsObj = 'metadata/' + this.fire.metadataDocPath[this.superColName];
+            this.fs.collection(fsObj + '/subCollections').doc(result.name).set(data);
+            this.fs.doc(fsObj).update({
               subCollections: firebase.firestore.FieldValue.arrayUnion(result.name)
             });
             return this.router.navigate(['/model-create', this.superColName, this.docId, result.name, result.collection]);
@@ -207,7 +237,12 @@ export class ModelsComponent implements OnInit {
           if (this.docId == null) {
             this.fs.collection('metadata').doc(docId).delete();
           } else {
-            this.fireObj.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(docId).delete();
+            this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(docId).delete();
+            const dataDel = {subCollections: this.subCollections};
+            const x = this.subCollections.indexOf(docId);
+            this.subCollections.splice(x, 1);
+            dataDel.subCollections = this.subCollections;
+            this.fs.doc('metadata/' + this.fire.metadataDocPath[this.superColName]).update(dataDel);
           }
           this.modelList.splice(id, 1);
         }
@@ -221,6 +256,11 @@ export class ModelsComponent implements OnInit {
     console.log(firebase.apps.length);
     localStorage.removeItem('firebaseData');
     return this.router.navigate(['']);
+  }
+
+  selectDoc(doc) {
+    this.selectedDoc = doc;
+    console.log(this.selectedDoc);
   }
 
 }
