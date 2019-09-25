@@ -12,6 +12,7 @@ import {OptionSelectionComponent} from '../model-create/option-selection/option-
 import * as firebase from 'firebase';
 import {DatabasePathComponent} from './database-path/database-path.component';
 import {DocumentIDComponent} from './document-id/document-id.component';
+import {Location} from '@angular/common';
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -60,7 +61,8 @@ export class DataComponent implements OnInit {
               private dataS: DataService,
               private fire: FireConnectionService,
               private router: Router,
-              public dialog: MatDialog) {
+              public dialog: MatDialog,
+              private location: Location) {
     if (Object.keys(this.fire.fireObj).length === 0) {
       const data = JSON.parse(localStorage.getItem('firebaseData'));
       this.fire.setFireObj(data);
@@ -544,6 +546,10 @@ export class DataComponent implements OnInit {
 
   onHome() {
     return this.router.navigate(['/models']);
+  }
+
+  onBack() {
+    this.location.back();
   }
 
   updateCheckBox(row, col) {

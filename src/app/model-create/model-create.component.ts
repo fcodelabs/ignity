@@ -8,6 +8,7 @@ import { MapComponent } from './map/map.component';
 import { OptionSelectionComponent } from './option-selection/option-selection.component';
 import {FireConnectionService} from '../shared/fire-connection.service';
 import {DatabaseComponent} from './database/database.component';
+import {Location} from '@angular/common';
 import * as firebase from 'firebase';
 
 @Component({
@@ -34,7 +35,8 @@ export class ModelCreateComponent implements OnInit {
               private route: ActivatedRoute,
               // private firestore: AngularFirestore,
               private router: Router,
-              private fire: FireConnectionService) {
+              private fire: FireConnectionService,
+              private location: Location) {
     if (Object.keys(this.fire.fireObj).length === 0) {
       const data = JSON.parse(localStorage.getItem('firebaseData'));
       this.fire.setFireObj(data);
@@ -147,7 +149,7 @@ export class ModelCreateComponent implements OnInit {
   }
 
   onBack() {
-    return this.router.navigate(['/models']);
+    this.location.back();
   }
 
   onDeleteField(f) {

@@ -14,12 +14,15 @@
     <mat-divider></mat-divider>
     <div style="margin: 0px 100px">
         <mat-toolbar style="background-color: #f5f0f0">
-        <mat-icon>list</mat-icon><span style="font-size: 17px">Content Models</span>
-        <span style="font-size: small">({{path}})</span>
-        <span class="fill-remaining-space"></span>
-        <span style="margin-right: 5px"><button mat-raised-button color="primary" (click)="openDialog()"><span>+ New Model</span>
-        </button></span>
-        <span><button mat-raised-button color="warn" (click)="onSwitchApp()">Switch App</button></span>
+          <button *ngIf="docId != null" (click)="onBack()" mat-icon-button ><mat-icon>keyboard_arrow_left</mat-icon></button>
+          <button *ngIf="docId != null" (click)="onHome()" mat-icon-button><mat-icon>home</mat-icon></button>
+          <button style="color: black" mat-icon-button disabled><mat-icon>list</mat-icon></button>
+          <span style="font-size: 17px">Content Models</span>
+          <span style="font-size: small">({{path}})</span>
+          <span class="fill-remaining-space"></span>
+          <span style="margin-right: 5px"><button mat-raised-button color="primary" (click)="openDialog()"><span>+ New Model</span>
+          </button></span>
+          <span><button mat-raised-button color="warn" (click)="onSwitchApp()">Switch App</button></span>
         </mat-toolbar>
         <mat-toolbar *ngIf="docId != null">
           <span style="margin-right: 10px; font-size: 15px">Select document : </span>

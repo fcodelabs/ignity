@@ -14,6 +14,7 @@
     <mat-divider></mat-divider>
     <div style="margin: 0px 100px">
         <mat-toolbar style="background-color: #f5f0f0">
+            <button *ngIf="superColId != null" (click)="onBack()" mat-icon-button ><mat-icon>keyboard_arrow_left</mat-icon></button>
             <button (click)="onHome()" mat-icon-button><mat-icon>home</mat-icon></button>
             <mat-icon>list</mat-icon><span style="font-size: 17px">{{docId}}</span>
             <span style="font-size: small">({{path}})</span>

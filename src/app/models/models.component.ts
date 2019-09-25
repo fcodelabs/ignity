@@ -4,6 +4,7 @@ import { ModelComponent } from './model/model.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import { FireConnectionService } from '../shared/fire-connection.service';
 import { DataService } from '../shared/data.service';
+import { Location } from '@angular/common';
 import * as firebase from 'firebase';
 // import { AngularFirestore } from '@angular/fire/firestore';
 
@@ -34,7 +35,8 @@ export class ModelsComponent implements OnInit {
               private router: Router,
               private fire: FireConnectionService,
               private dataS: DataService,
-              private route: ActivatedRoute
+              private route: ActivatedRoute,
+              private location: Location,
               // private firestore: AngularFirestore
   ) {
     if (Object.keys(this.fire.fireObj).length === 0) {
@@ -261,6 +263,14 @@ export class ModelsComponent implements OnInit {
   selectDoc(doc) {
     this.selectedDoc = doc;
     console.log(this.selectedDoc);
+  }
+
+  onHome() {
+    return this.router.navigate(['/models']);
+  }
+
+  onBack() {
+    this.location.back();
   }
 
 }
