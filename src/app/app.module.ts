@@ -5,8 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
-
-
+import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ModelsComponent } from './models/models.component';
@@ -53,7 +52,6 @@ const config = {
     DatabaseComponent,
     DatabasePathComponent,
     DocumentIDComponent,
-
   ],
   imports: [
     BrowserModule,
@@ -62,7 +60,9 @@ const config = {
     FormsModule,
     BrowserAnimationsModule,
     // AngularFireModule.initializeApp(config),
-    AngularFirestoreModule
+    AngularFirestoreModule,
+    OwlDateTimeModule,
+    OwlNativeDateTimeModule,
   ],
   exports: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent, SelectArrayDatatypeComponent,
     AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent, DocumentIDComponent],

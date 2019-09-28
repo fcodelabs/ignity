@@ -8,6 +8,7 @@ import { MapComponent } from './map/map.component';
 import { OptionSelectionComponent } from './option-selection/option-selection.component';
 import {FireConnectionService} from '../shared/fire-connection.service';
 import {DatabaseComponent} from './database/database.component';
+import {Location} from '@angular/common';
 import * as firebase from 'firebase';
 
 @Component({
@@ -34,7 +35,8 @@ export class ModelCreateComponent implements OnInit {
               private route: ActivatedRoute,
               // private firestore: AngularFirestore,
               private router: Router,
-              private fire: FireConnectionService) {
+              private fire: FireConnectionService,
+              private location: Location) {
     if (Object.keys(this.fire.fireObj).length === 0) {
       const data = JSON.parse(localStorage.getItem('firebaseData'));
       this.fire.setFireObj(data);
@@ -52,20 +54,16 @@ export class ModelCreateComponent implements OnInit {
       cityRef = this.fs.collection('metadata').doc(modelName);
     } else {
       if (Object.keys(this.fire.fireConStr).length === 0) {
-        this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
-        this.fire.subColMetadata = JSON.parse(localStorage.getItem('subColMetadata'));
-        this.fire.superColPath = JSON.parse(localStorage.getItem('superColPath'));
+        this.fire.metadataDocPath = JSON.parse(localStorage.getItem('metadataDocPath'));
+        this.fire.collectionPath = JSON.parse(localStorage.getItem('collectionPath'));
       }
       console.log(this.superColName);
-      const lst = this.fire.fireConStr[docId];
-      const obj = this.fs;
-      this.fireObj = this.fire.getFireConnection(lst, obj);
       if (Object.keys(this.fire.path).length === 0) {
         this.fire.path = JSON.parse(localStorage.getItem('path'));
       }
       console.log(docId);
-      this.path = this.fire.getPath(this.docId);
-      cityRef = this.fs.collection(this.fire.subColMetadata[docId] + '/subCollections').doc(modelName);
+      this.path = this.fire.path[this.superColName];
+      cityRef = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(modelName);
     }
     this.modelName = modelName;
     console.log(this.modelName);
@@ -113,7 +111,7 @@ export class ModelCreateComponent implements OnInit {
         if (this.docId == null) {
           cityRef = this.fs.collection('metadata').doc(this.modelName);
         } else {
-          cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
+          cityRef = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.modelName);
         }
 
         if (result.dataType === 'array') {
@@ -146,12 +144,12 @@ export class ModelCreateComponent implements OnInit {
     if (this.docId == null ) {
       return this.router.navigate(['/models/data', this.modelName]);
     } else {
-      return this.router.navigate(['/models/data', this.modelName, this.docId, this.colPath]);
+      return this.router.navigate(['/models/data', this.modelName, this.docId, this.colPath, this.superColName]);
     }
   }
 
   onBack() {
-    return this.router.navigate(['/models']);
+    this.location.back();
   }
 
   onDeleteField(f) {
@@ -159,25 +157,55 @@ export class ModelCreateComponent implements OnInit {
     console.log(this.allData[0].path);
     let connection;
     let connectionMD;
+    const dataDel = {};
+    dataDel[f] = firebase.firestore.FieldValue.delete();
     if (this.docId == null) {
       connection = this.fs.collection(this.allData[0].path);
       connectionMD = this.fs.collection('metadata').doc(this.modelName);
-    } else {
-      connection = this.fireObj.collection(this.allData[0].path);
-      connectionMD = this.fs.collection(this.fire.subColMetadata[this.docId]).doc(this.modelName);
-    }
-    const dataDel = {};
-    dataDel[f] = firebase.firestore.FieldValue.delete();
-    connection.get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          connection.doc(doc.id).update(dataDel);
-          console.log(doc.id, '=>', doc.data());
+
+      connection.get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            connection.doc(doc.id).update(dataDel);
+            console.log(doc.id, '=>', doc.data());
+          });
+        })
+        .catch(err => {
+          console.log('Error getting documents', err);
         });
-      })
-      .catch(err => {
-        console.log('Error getting documents', err);
-      });
+    } else {
+      const paths = [];
+      console.log(this.fire.collectionPath);
+      connection = this.fs.collection(this.fire.collectionPath[this.superColName]);
+      connection.get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            console.log(doc.id, '=>', doc.data());
+            paths.push(doc.id);
+          });
+        })
+        .catch(err => {
+          console.log('Error getting documents', err);
+        });
+      console.log(paths);
+      for (const docPath of paths) {
+        console.log(docPath);
+        connection = this.fs.collection(this.fire.collectionPath[this.superColName] + '/' + docPath + '/' + this.allData[0].path);
+        connection.get()
+          .then(snapshot => {
+            snapshot.forEach(doc => {
+              connection.doc(doc.id).update(dataDel);
+              console.log(doc.id, '=>', doc.data());
+            });
+          })
+          .catch(err => {
+            console.log('Error getting documents', err);
+          });
+      }
+
+      connectionMD = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.modelName);
+    }
+
     if (this.dataTypes[f] === 'array' || this.dataTypes[f] === 'map' || this.dataTypes[f] === 'database'
       || this.dataTypes[f] === 'optionselection') {
       if (this.dataTypes[f] === 'array' && this.allData[0][f] === 'database') {
@@ -209,7 +237,7 @@ export class ModelCreateComponent implements OnInit {
     if (this.docId == null) {
       cityRef = this.fs.collection('metadata').doc(this.modelName);
     } else {
-      cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
+      cityRef = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.modelName);
     }
     console.log(this.allData[0][f]);
     if (event.target.value === 'database') {
@@ -262,7 +290,7 @@ export class ModelCreateComponent implements OnInit {
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);
       } else {
-        cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
+        cityRef = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.modelName);
       }
       cityRef.update(data);
     });
@@ -309,7 +337,7 @@ export class ModelCreateComponent implements OnInit {
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);
       } else {
-        cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
+        cityRef = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.modelName);
       }
       cityRef.update(data);
     });
@@ -333,7 +361,7 @@ export class ModelCreateComponent implements OnInit {
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);
       } else {
-        cityRef = this.fs.collection(this.fire.subColMetadata[this.docId] + '/subCollections').doc(this.modelName);
+        cityRef = this.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.modelName);
       }
       cityRef.update(data);
     });

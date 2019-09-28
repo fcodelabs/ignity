@@ -1,10 +1,12 @@
 <div class="container">
-    <mat-toolbar style="background-color: #0093af;color:white; ">
+    <mat-toolbar style="background-color: #dddddd;color:white; ">
         <span class="fill-remaining-space"></span>
+        <span><img src="https://trello-attachments.s3.amazonaws.com/5cb741661c039c0563557894/5d84bfc354b6d38871394205/34a9c43aa6147017dcde2800c1280eee/ignity-logo.png"
+                 height="40px" width="100px"></span>
         <div>
             <p style="text-align: center">
-                <span style="font-size: 30px;"><b>IGNITY</b></span>
-                <span style="font-size: 15px;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"><i>Firebase data management tool</i></span>
+                <!--span style="font-size: 30px;"><b>IGNITY</b></span-->
+                <span style="color:#0093af; font-size: 15px;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"><i>Firebase data management tool</i></span>
             </p>
         </div>
         <span class="fill-remaining-space"></span>
@@ -12,10 +14,12 @@
     <mat-divider></mat-divider>
     <div style="margin: 0px 100px">
         <mat-toolbar style="background-color: #f5f0f0">
+            <button *ngIf="superColId != null" (click)="onBack()" mat-icon-button ><mat-icon>keyboard_arrow_left</mat-icon></button>
             <button (click)="onHome()" mat-icon-button><mat-icon>home</mat-icon></button>
             <mat-icon>list</mat-icon><span style="font-size: 17px">{{docId}}</span>
             <span style="font-size: small">({{path}})</span>
             <span class="fill-remaining-space"></span>
+            <span style="margin-right: 5px"><button mat-raised-button (click)="onSubCollections()">Sub-Collections</button></span>
             <span><button mat-raised-button color="primary" (click)="add()"><span>+ Add Entry</span>
             </button></span>
         </mat-toolbar>
@@ -34,7 +38,7 @@
                     <span style="float: right">{{dataTypes[col]}}</span>
                 </th>
                 <th style="width :100px"><span style="float: right">Remove</span></th>
-                <th style="width :100px"><span style="float: right">Sub-Collections</span></th>
+                <!--th style="width :100px"><span style="float: right">Sub-Collections</span></th-->
                 <th style="width: 100px"><span style="float: right"><input (blur)="addField($event)" [(ngModel)]="newField" placeholder="+ Add new Field"></span></th>
             </tr>
             <!--table header end-->
@@ -142,8 +146,12 @@
                         </span>
                         <!--Date Time-->
                         <span *ngSwitchCase="'datetime'">
-                            <input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)">
-                        </span>
+                            <!--input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)"-->
+                            <input [value]="row[1][col]"
+                                   [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1"
+                                   (blur)="updateValue($event,row,col)" placeholder="Date Time">
+                            <owl-date-time #dt1 [startAt]="row[1][col]"></owl-date-time>
+                            </span>
                         <!--Data base-->
                         <span *ngSwitchCase="'database'">
                             <!--td contenteditable="true"  (blur)="updateDatabaseRef($event,row,col)"  style="width: 100%; height:100%;">
@@ -172,9 +180,9 @@
                 <td>
                     <button (click)="remove(row[0])" style="float: right" mat-raised-button color="warn"><mat-icon>delete</mat-icon>Remove</button>
                 </td>
-                <td>
+                <!--td>
                     <button mat-raised-button (click)="onViewSubCollections(row[0])">View</button>
-                </td>
+                </td-->
             </tr>
             <!--end of table body-->
         </table>

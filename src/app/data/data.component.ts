@@ -12,6 +12,8 @@ import {OptionSelectionComponent} from '../model-create/option-selection/option-
 import * as firebase from 'firebase';
 import {DatabasePathComponent} from './database-path/database-path.component';
 import {DocumentIDComponent} from './document-id/document-id.component';
+import {Location} from '@angular/common';
+
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
 // import { delay } from 'q';
@@ -47,18 +49,22 @@ export class DataComponent implements OnInit {
   arrayDataType = 'string';
   fs;
   collectionDocs = {};
-  subColId; // Id of th document which is containing sub collections
+  superColId; // Id of th document which is containing sub collections
   fireObj;
   path;
   colPath;
   newDocId = '';
+  superColName;
+  selectedDoc;
   // fireCon;
+  val = new Date(2018, 3, 10, 10, 30, 30);
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
               private dataS: DataService,
               private fire: FireConnectionService,
               private router: Router,
-              public dialog: MatDialog) {
+              public dialog: MatDialog,
+              private location: Location) {
     if (Object.keys(this.fire.fireObj).length === 0) {
       const data = JSON.parse(localStorage.getItem('firebaseData'));
       this.fire.setFireObj(data);
@@ -66,34 +72,39 @@ export class DataComponent implements OnInit {
     }
     this.fs = fire.fs;
     const id = this.route.snapshot.paramMap.get('docId');
-    console.log(id);
+    console.log('metadata docid =>', id);
     this.docId = id;
     this.colPath = this.route.snapshot.paramMap.get('colPath');
-    this.subColId = this.route.snapshot.paramMap.get('subColId');
+    console.log('colpath =>', this.colPath);
+    this.superColId = this.route.snapshot.paramMap.get('subColId');
+    console.log('subColId =>', this.superColId);
+    this.superColName = this.route.snapshot.paramMap.get('superColName');
+    console.log('superColName =>', this.superColName);
+    this.selectedDoc = this.route.snapshot.paramMap.get('selectedId');
+    console.log('selectedDoc =>', this.selectedDoc);
     let cityRef;
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       cityRef = this.fs.collection('metadata').doc(this.docId);
       this.path = '';
     } else {
-      if (Object.keys(this.fire.fireConStr).length === 0) {
+      if (Object.keys(this.fire.metadataDocPath).length === 0) {
+        this.fire.metadataDocPath = JSON.parse(localStorage.getItem('metadataDocPath'));
+        this.fire.collectionPath = JSON.parse(localStorage.getItem('collectionPath'));
         this.fire.fireConStr = JSON.parse(localStorage.getItem('fireConStr'));
-        this.fire.subColMetadata = JSON.parse(localStorage.getItem('subColMetadata'));
-        this.fire.superColPath = JSON.parse(localStorage.getItem('superColPath'));
+        console.log(this.fire.metadataDocPath);
       }
-      const lst = this.fire.fireConStr[this.subColId];
-      const obj = this.fs;
-      this.fireObj = this.fire.getFireConnection(lst, obj);
       if (Object.keys(this.fire.path).length === 0) {
         this.fire.path = JSON.parse(localStorage.getItem('path'));
       }
       console.log(id);
       // this.path = this.fire.getPath(this.subColId);
       // this.path = this.path + '/' + this.colPath;
-      cityRef = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
-      this.fs = this.fireObj;
+      cityRef = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
+      this.fs = this.fs.doc(this.fire.collectionPath[this.superColName] + '/' + this.selectedDoc);
+      console.log('100');
     }
     // this.fireCon = this.fs.collection(this.docId);
-    const getDoc = cityRef.get()
+    cityRef.get()
       .then(doc => {
         if (!doc.exists) {
           console.log('No such document!');
@@ -104,11 +115,11 @@ export class DataComponent implements OnInit {
           this.colId = doc.data().path;
           this.dataTypes = doc.data().datatypes;
           this.tableData = doc.data();
-          if (this.subColId == null) {
+          if (this.superColId == null) {
             this.path = this.colId;
           } else {
-            this.path = this.fire.getPath(this.subColId);
-            this.path = this.path + '/' + this.colId;
+            this.path = this.fire.collectionPath[this.superColName];
+            this.path = this.path + '/' + this.selectedDoc + '/' + this.colId;
           }
           // check data type and if data type == database load all the doc of collection
           // tslint:disable-next-line:forin
@@ -152,6 +163,10 @@ export class DataComponent implements OnInit {
               const Ref = this.fs.collection(this.colId).doc(document.id);
               const data = {};
               for (const x of this.tableData.fields) {
+                if (this.dataTypes[x] === 'datetime') {
+                  console.log(localData[x].seconds);
+                  localData[x] = new Date(localData[x].seconds * 1000);
+                }
                 if (document.data()[x] == null) {
                   console.log('error');
                   switch (this.dataTypes[x]) {
@@ -497,7 +512,8 @@ export class DataComponent implements OnInit {
     }
     if (this.dataTypes[col] === 'datetime') {
       console.log(event.target.value);
-      // console.log(new Date(row[1][col]));
+      row[1][col] = new Date(event.target.value);
+      console.log(row[1][col]);
       data[col] = new Date(event.target.value);
       cityRef.update(data);
       return;
@@ -539,6 +555,10 @@ export class DataComponent implements OnInit {
     return this.router.navigate(['/models']);
   }
 
+  onBack() {
+    this.location.back();
+  }
+
   updateCheckBox(row, col) {
     console.log(!row[1][col]);
     const cityRef = this.fs.collection(this.colId).doc(row[0]);
@@ -552,10 +572,10 @@ export class DataComponent implements OnInit {
 
   updateDataType(eventVal, col) {
     let connection;
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       connection = this.fs.collection('metadata').doc(this.docId);
     } else {
-      connection = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
+      connection = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
     }
     console.log(eventVal);
     console.log(this.dataTypes[col]);
@@ -714,10 +734,10 @@ export class DataComponent implements OnInit {
     // event use to get new field name,newField global variable is only using to clear input box
     let newField = '';
     let connection;
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       connection = this.fs.collection('metadata').doc(this.docId);
     } else {
-      connection = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
+      connection = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
     }
     console.log(event.target.value);
     // remove all the whitespaces of input
@@ -747,10 +767,10 @@ export class DataComponent implements OnInit {
 // select data type of array
   openDialogArray(eventVal, col): void {
     let connection;
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       connection = this.fs.collection('metadata').doc(this.docId);
     } else {
-      connection = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
+      connection = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
     }
     const dialogRef = this.dialog.open(SelectArrayDatatypeComponent, {
       width: '250px',
@@ -782,10 +802,10 @@ export class DataComponent implements OnInit {
       data: {fields: mapFields}
     });
     let connection;
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       connection = this.fs.collection('metadata').doc(this.docId);
     } else {
-      connection = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
+      connection = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
     }
     dialogRef.afterClosed().subscribe(result => {
       // this.result = result;
@@ -825,10 +845,10 @@ export class DataComponent implements OnInit {
   openDialogOptionSelection(f) {
     const options = [{value: ''}];
     let connection;
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       connection = this.fs.collection('metadata').doc(this.docId);
     } else {
-      connection = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
+      connection = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
     }
     const dialogRef = this.dialog.open(OptionSelectionComponent, {
       width: '350px',
@@ -887,10 +907,10 @@ export class DataComponent implements OnInit {
         });
       this.collectionDocs[f] = docs;
       let cityRef;
-      if (this.subColId == null) {
+      if (this.superColId == null) {
         cityRef = this.fs.collection('metadata').doc(this.docId);
       } else {
-        cityRef = this.fire.fs.collection(this.fire.subColMetadata[this.subColId] + '/subCollections').doc(this.docId);
+        cityRef = this.fire.fs.collection('metadata/' + this.fire.metadataDocPath[this.superColName] + '/subCollections').doc(this.docId);
       }
       if (this.tableData[f] === 'database') {
         console.log('success');
@@ -905,7 +925,7 @@ export class DataComponent implements OnInit {
 
   onViewSubCollections(rowID) {
     console.log(rowID);
-    if (this.subColId == null) {
+    if (this.superColId == null) {
       const path = this.colId + '/' + rowID;
       this.fire.setPath(rowID, path);
       this.fire.fireConStr[rowID] = [];
@@ -915,14 +935,14 @@ export class DataComponent implements OnInit {
       this.fire.superColPath[rowID].push(this.colId);
       this.fire.subColMetadata[rowID] = 'metadata' + '/' + this.docId ;
     } else {
-      let path = this.fire.getPath(this.subColId);
+      let path = this.fire.getPath(this.superColId);
       path = path + '/' + this.colPath + '/' + rowID;
       this.fire.setPath(rowID, path);
-      this.fire.fireConStr[rowID] = this.fire.fireConStr[this.subColId];
+      this.fire.fireConStr[rowID] = this.fire.fireConStr[this.superColId];
       this.fire.fireConStr[rowID].push(this.colId);
       this.fire.fireConStr[rowID].push(rowID);
       this.fire.superColPath[rowID].push(this.colId);
-      this.fire.subColMetadata[rowID] = this.fire.subColMetadata[this.subColId] + '/subCollections' + '/' + this.docId ;
+      this.fire.subColMetadata[rowID] = this.fire.subColMetadata[this.superColId] + '/subCollections' + '/' + this.docId ;
     }
     const fireCon = this.fs.collection(this.colId).doc(rowID);
     this.fire.setConnection(rowID, fireCon);
@@ -931,15 +951,40 @@ export class DataComponent implements OnInit {
     localStorage.setItem('superColPath', JSON.stringify(this.fire.superColPath));
     return this.router.navigate(['/models/data', this.docId, rowID, 'models']);
   }
+
+  onSubCollections() {
+    console.log('sub-collections');
+    if (this.superColId == null) {
+      this.fire.metadataDocPath[this.docId] = this.docId;
+      this.fire.collectionPath[this.docId] = this.colPath;
+      this.fire.path[this.docId] = this.colPath;
+      this.fire.fireConStr[this.docId] = [this.colPath];
+    } else {
+      this.fire.metadataDocPath[this.docId] = this.fire.metadataDocPath[this.superColName] + '/subCollections/' + this.docId;
+      this.fire.collectionPath[this.docId] = this.fire.collectionPath[this.superColName] + '/' + this.selectedDoc + '/' + this.colId;
+      this.fire.path[this.docId] = this.fire.path[this.superColName] + '/' + this.selectedDoc + '/' + this.colId;
+    }
+    localStorage.setItem('metadataDocPath', JSON.stringify(this.fire.metadataDocPath));
+    localStorage.setItem('collectionPath', JSON.stringify(this.fire.collectionPath));
+    localStorage.setItem('path', JSON.stringify(this.fire.path));
+    localStorage.setItem('fireConStr', JSON.stringify(this.fire.fireConStr));
+    return this.router.navigate(['/models/data', this.docId, this.colPath, 'subCollections']);
+  }
+
   secondsToDate(secs) {
     // console.log(secs === undefined);
     if (secs === undefined) {
       return;
     }
     const date = new Date(secs * 1000);
-    const dateISO = date.toISOString().split(':');
+    // const dateISO = date.toISOString().split(':');
     // console.log(dateISO[0] + ':' + dateISO[1]);
-    return dateISO[0] + ':' + dateISO[1];
+    return date;
+  }
+  saveDate(row, col) {
+    const date = new Date(row[1][col].seconds * 1000);
+    row[1][col] = date;
+    // console.log(date);
   }
 
   openDialogDocId(): void {
