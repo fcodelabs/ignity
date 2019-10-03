@@ -58,7 +58,7 @@
                         <!--number-->
                         <span *ngSwitchCase="'number'" contenteditable="false">
                             <input (blur)="updateValue($event,row,col)" type="number" [value]="row[1][col]" style="border: none;
-                            background-color:rgba(0, 0, 0, 0);width: 100%; height: 50px;">
+                            background-color:rgba(0, 0, 0, 0);width: 170px; height: 50px; margin-right: 10px">
                         </span>
                         <!--option selection-->
                         <span *ngSwitchCase="'optionselection'">
@@ -171,10 +171,15 @@
                         </span>
                         <!--Default-->
                         <span *ngSwitchDefault>
-                            <td contenteditable="true"  (blur)="updateValue($event,row,col)"  style="width: 100%; height:100%;">
+                            <!--td contenteditable="true"  (blur)="updateValue($event,row,col)"  style="width: 100%; height:100%;">
                                 {{row[1][col]}}
-                            </td>
+                            </td-->
+                            <input  (blur)="updateValue($event,row,col)" [value]="row[1][col]" style="border:none; height: 40px;
+                                          background-color:rgba(0, 0, 0, 0);width: 170px; margin-right: 10px">
                         </span>
+                    </span>
+                    <span>
+                      <mat-checkbox></mat-checkbox>
                     </span>
                 </td>
                 <td>
