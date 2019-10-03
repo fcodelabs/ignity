@@ -23,19 +23,19 @@
             <span><button mat-raised-button color="primary" (click)="add()"><span>+ Add Entry</span>
             </button></span>
         </mat-toolbar>
-        <table *ngIf="collectionData !=[]">
+        <table style="display: block; overflow-x: auto; white-space: nowrap" *ngIf="collectionData !=[]">
             <!--table header start-->
             <tr>
-                <th>Document ID</th>
-                <th *ngFor="let col of collection[0]">{{col}}
-                    <span style="float: right">
+                <th style="width: 250px">Document ID</th>
+                <th style="width: 200px;" *ngFor="let col of collection[0]">{{col}}
+                    <span style="float: right; width: 200px">
                         <mat-select [(ngModel)]="dataTypes[col]" (selectionChange)="updateDataType($event.value,col)">
                             <mat-option *ngFor="let dataT of defaultDataTypes" [value]="dataT.value">
                                 {{dataT.viewValue}}
                             </mat-option>
                         </mat-select>
                     </span>
-                    <span style="float: right">{{dataTypes[col]}}</span>
+                    <!--span style="float: right">{{dataTypes[col]}}</span-->
                 </th>
                 <th style="width :100px"><span style="float: right">Remove</span></th>
                 <!--th style="width :100px"><span style="float: right">Sub-Collections</span></th-->
@@ -85,7 +85,7 @@
                                 </div>
 
                                 <div *ngIf="tableData[col]=='number'">
-                                    <input  [(ngModel)]="x" (blur)="updateValueArray($event,row,col,i)" type="number" [value]="row[1][col]" style="border: none;
+                                    <input (blur)="updateValueArray($event,row,col,i)" type="number" [ngModel]="row[1][col][i]" style="border: none;
                                       background-color:rgba(0, 0, 0, 0);width: 100%; height: 40px;">
                                     <span>
                                       <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
