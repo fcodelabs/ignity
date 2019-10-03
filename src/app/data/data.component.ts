@@ -436,6 +436,20 @@ export class DataComponent implements OnInit {
   }
 
   updateValueArray(event, row, col, i) {
+    let lst;
+    const con = this.fs.collection(this.colId).doc(row[0]);
+    con.get()
+      .then(doc => {
+        if (!doc.exists) {
+          console.log('No such document!');
+        } else {
+          console.log('Document data:', doc.data());
+          lst = doc.data().col;
+        }
+      })
+      .catch(err => {
+        console.log('Error getting document', err);
+      });
     // row[1][col][i]=event.target.value;
     if (this.tableData[col] === 'string') {
       console.log(event.target.value);
@@ -444,8 +458,12 @@ export class DataComponent implements OnInit {
     }
     if (this.tableData[col] === 'number') {
       console.log(event.target.value);
-      row[1][col].splice(i, 1);
-      row[1][col].splice(i, 0, +event.target.value );
+      // lst = row[1][col].slice();
+      lst.splice(i, 1);
+      lst.splice(i, 0, +event.target.value );
+      // row[1][col][i] = +event.target.value;
+      console.log('lst', lst);
+      console.log(row[1][col]);
     }
     if (this.tableData[col] === 'boolean') {
       console.log('true' === event.target.value);
@@ -460,7 +478,7 @@ export class DataComponent implements OnInit {
     }
     const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
-    data[col] = row[1][col];
+    data[col] = lst;
     cityRef.update(data);
 
     console.log(row[1][col]);
