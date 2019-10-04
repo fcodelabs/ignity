@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../shared/data.service';
 import { FireConnectionService } from '../shared/fire-connection.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-
+import { ResizeEvent } from 'angular-resizable-element';
 import { SelectArrayDatatypeComponent } from './select-array-datatype/select-array-datatype.component';
 import {MapComponent} from '../model-create/map/map.component';
 import {OptionSelectionComponent} from '../model-create/option-selection/option-selection.component';
@@ -13,6 +13,7 @@ import * as firebase from 'firebase';
 import {DatabasePathComponent} from './database-path/database-path.component';
 import {DocumentIDComponent} from './document-id/document-id.component';
 import {Location} from '@angular/common';
+import * as $ from 'jquery';
 
 // import { async } from '@angular/core/testing';
 // import { deflateRawSync } from 'zlib';
@@ -57,6 +58,10 @@ export class DataComponent implements OnInit {
   superColName;
   selectedDoc;
   // fireCon;
+  start;
+  pressed;
+  startX;
+  startWidth;
   val = new Date(2018, 3, 10, 10, 30, 30);
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
@@ -64,7 +69,8 @@ export class DataComponent implements OnInit {
               private fire: FireConnectionService,
               private router: Router,
               public dialog: MatDialog,
-              private location: Location) {
+              private location: Location,
+              public renderer: Renderer) {
     if (Object.keys(this.fire.fireObj).length === 0) {
       const data = JSON.parse(localStorage.getItem('firebaseData'));
       this.fire.setFireObj(data);
@@ -278,6 +284,10 @@ export class DataComponent implements OnInit {
       });
 
     }
+
+  onResizeEnd(event: ResizeEvent): void {
+    console.log('Element was resized', event);
+  }
 
 
     /*
@@ -1124,6 +1134,30 @@ export class DataComponent implements OnInit {
           .catch(function(error) {
             console.error('Error writing document: ', error);
           });
+      }
+    });
+  }
+  // resize column length
+  onMouseDown(event) {
+    this.start = event.target;
+    this.pressed = true;
+    this.startX = event.x;
+    this.startWidth = $(this.start).parent().width();
+    this.initResizableColumns();
+  }
+
+  initResizableColumns() {
+    this.renderer.listenGlobal('body', 'mousemove', (event) => {
+      if (this.pressed) {
+        const width = this.startWidth + (event.x - this.startX);
+        $(this.start).parent().css({'min-width': width, 'max-   width': width});
+        const index = $(this.start).parent().index() + 1;
+        $('.glowTableBody tr td:nth-child(' + index + ')').css({'min-width': width, 'max-width': width});
+      }
+    });
+    this.renderer.listenGlobal('body', 'mouseup', (event) => {
+      if (this.pressed) {
+        this.pressed = false;
       }
     });
   }
