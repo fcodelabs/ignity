@@ -6,6 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
+import { ResizableModule } from 'angular-resizable-element';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ModelsComponent } from './models/models.component';
@@ -22,7 +24,6 @@ import { FireLoginComponent } from './fire-login/fire-login.component';
 import { DatabaseComponent } from './model-create/database/database.component';
 import { DatabasePathComponent } from './data/database-path/database-path.component';
 import { DocumentIDComponent } from './data/document-id/document-id.component';
-
 const config = {
   apiKey: 'AIzaSyDSrdbgebIsyvK4vXeM9JXKAAsY6c-xOqs',
   authDomain: 'fir-cms-ae9d0.firebaseapp.com',
@@ -63,6 +64,7 @@ const config = {
     AngularFirestoreModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
+    ResizableModule
   ],
   exports: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent, SelectArrayDatatypeComponent,
     AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent, DocumentIDComponent],

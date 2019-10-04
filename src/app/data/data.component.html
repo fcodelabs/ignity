@@ -23,12 +23,15 @@
             <span><button mat-raised-button color="primary" (click)="add()"><span>+ Add Entry</span>
             </button></span>
         </mat-toolbar>
-        <table style="display: block; overflow-x: auto; white-space: nowrap" *ngIf="collectionData !=[]">
+        <table style="display:block; overflow-x: auto; white-space: nowrap" *ngIf="collectionData !=[]" id="dataTable">
             <!--table header start-->
             <tr>
-                <th style="width: 250px">Document ID</th>
-                <th style="width: 200px;" *ngFor="let col of collection[0]">{{col}}
-                    <span style="float: right; width: 200px">
+                <th><span>Document ID</span><span class="ui-column-resizer" (mousedown)="onMouseDown($event)"></span></th>
+                <th style="width: 200px" *ngFor="let col of collection[0]">
+                  <div style="width: 200px">
+                    <span>{{col}}</span>
+                    <span class="ui-column-resizer" (mousedown)="onMouseDown($event)"></span>
+                    <span style="float: right; width: 50%">
                         <mat-select [(ngModel)]="dataTypes[col]" (selectionChange)="updateDataType($event.value,col)">
                             <mat-option *ngFor="let dataT of defaultDataTypes" [value]="dataT.value">
                                 {{dataT.viewValue}}
@@ -36,10 +39,11 @@
                         </mat-select>
                     </span>
                     <!--span style="float: right">{{dataTypes[col]}}</span-->
+                   </div>
                 </th>
-                <th style="width :100px"><span style="float: right">Remove</span></th>
+                <th style="width :100px; padding-right: 8px"><span style="float: right">Remove</span></th>
                 <!--th style="width :100px"><span style="float: right">Sub-Collections</span></th-->
-                <th style="width: 100px"><span style="float: right"><input (blur)="addField($event)" [(ngModel)]="newField" placeholder="+ Add new Field"></span></th>
+                <th style="width: 100px; padding-right: 8px"><span style="float: right"><input (blur)="addField($event)" [(ngModel)]="newField" placeholder="+ Add new Field"></span></th>
             </tr>
             <!--table header end-->
 
@@ -62,7 +66,7 @@
                         </span>
                         <!--option selection-->
                         <span *ngSwitchCase="'optionselection'">
-                            <mat-form-field >
+                            <mat-form-field style="width: 85%;padding-right: 5%">
                                 <mat-select [(ngModel)]="row[1][col]" (selectionChange)="updateValue($event,row,col)">
                                     <mat-option *ngFor="let opn of tableData[col]" [value]="opn">
                                     {{opn}}
@@ -178,11 +182,11 @@
                                           background-color:rgba(0, 0, 0, 0);width: 170px; margin-right: 10px">
                         </span>
                     </span>
-                    <span>
+                    <!--span>
                       <mat-checkbox></mat-checkbox>
-                    </span>
+                    </span-->
                 </td>
-                <td>
+                <td style="padding-right: 8px">
                     <button (click)="remove(row[0])" style="float: right" mat-raised-button color="warn"><mat-icon>delete</mat-icon>Remove</button>
                 </td>
                 <!--td>
