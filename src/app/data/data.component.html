@@ -57,17 +57,18 @@
                     <span [ngSwitch]="dataTypes[col]">
                         <!--checkbox-->
                         <span *ngSwitchCase="'boolean'" contenteditable="false">
-                            <mat-checkbox [(ngModel)]="row[1][col]" (click)="updateCheckBox(row,col)" (blur)="updateValue($event,row,col)"></mat-checkbox>
+                            <mat-checkbox [(ngModel)]="row[1][col]" (click)="updateCheckBox(row,col)" (blur)="updateValue($event,row,col)"
+                                          [disabled]="isNull(row[1][col])"></mat-checkbox>
                         </span>
                         <!--number-->
                         <span *ngSwitchCase="'number'" contenteditable="false">
                             <input (blur)="updateValue($event,row,col)" type="number" [value]="row[1][col]" style="border: none;
-                            background-color:rgba(0, 0, 0, 0);width: 170px; height: 50px; margin-right: 10px">
+                            background-color:rgba(0, 0, 0, 0);width: 85%; height: 50px; margin-right: 10px" [disabled]="isNull(row[1][col])">
                         </span>
                         <!--option selection-->
-                        <span *ngSwitchCase="'optionselection'">
-                            <mat-form-field style="width: 85%;padding-right: 5%">
-                                <mat-select [(ngModel)]="row[1][col]" (selectionChange)="updateValue($event,row,col)">
+                        <span *ngSwitchCase="'optionselection'" >
+                            <mat-form-field style="width: 85%;padding-right: 5%" >
+                                <mat-select [(ngModel)]="row[1][col]" (selectionChange)="updateValue($event,row,col)" [disabled]="isNull(row[1][col])">
                                     <mat-option *ngFor="let opn of tableData[col]" [value]="opn">
                                     {{opn}}
                                     </mat-option>
@@ -81,7 +82,7 @@
                                 <div *ngIf="tableData[col]=='string'"  >
                                     <span>
                                         <input  (blur)="updateValueArray($event,row,col,i)" [value]="row[1][col][i]" style="border:none; height: 40px;
-                                          background-color:rgba(0, 0, 0, 0);width: 85%;">
+                                          background-color:rgba(0, 0, 0, 0);width: 85%;" [disabled]="isNull(row[1][col])">
                                     </span>
                                     <span>
                                       <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
@@ -90,7 +91,7 @@
 
                                 <div *ngIf="tableData[col]=='number'">
                                     <input (blur)="updateValueArray($event,row,col,i)" type="number" [ngModel]="row[1][col][i]" style="border: none;
-                                      background-color:rgba(0, 0, 0, 0);width: 100%; height: 40px;">
+                                      background-color:rgba(0, 0, 0, 0);width: 85%; height: 40px;" [disabled]="isNull(row[1][col])">
                                     <span>
                                       <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
                                     </span>
@@ -98,7 +99,8 @@
 
                                 <div *ngIf="tableData[col]=='database'">
                                     <span>
-                                        <mat-select [value]="row[1][col][i].path" (selectionChange)="updateValueArray($event,row,col,i)">
+                                        <mat-select [value]="row[1][col][i].path" (selectionChange)="updateValueArray($event,row,col,i)"
+                                                    [disabled]="isNull(row[1][col])">
                                             <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
                                               {{doc}}
                                             </mat-option>
@@ -110,7 +112,7 @@
                                 </div>
 
                                 <div *ngIf="tableData[col]=='boolean'" style="height: 20px">
-                                    <select [value]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl required>
+                                    <select [value]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl [disabled]="isNull(row[1][col])" required>
                                         <option value=true >true</option>
                                         <option value=false>false</option>
                                     </select>
@@ -122,7 +124,7 @@
                                 <hr>
                             </div>
                             <span style="float: right;">
-                                <button (click)="addArrayValue(row,col)"  mat-icon-button color="primary"><mat-icon>add</mat-icon></button>
+                                <button (click)="addArrayValue(row,col)"  mat-icon-button color="primary" [disabled]="isNull(row[1][col])"><mat-icon>add</mat-icon></button>
                             </span>
                         </span>
                         <!--map-->
@@ -131,7 +133,7 @@
                                 <div style="margin-bottom: 5px">
                                     {{f}}
                                     <input (blur)="updateValue($event,row,col)" [(ngModel)]="row[1][col][f]"
-                                    style="width: 80px;float :right">
+                                    style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
                                 </div>
                             </span>
                         </span>
@@ -140,12 +142,12 @@
                             <div style="margin-bottom: 5px">
                                 Longitude :
                                 <input (blur)="updateValueG($event,row,col,'lon')" type="number" placeholder="longitude"
-                                [value]="row[1][col].longitude" style="width: 80px;float :right">
+                                [value]="row[1][col].longitude" style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
                             </div>
                             <div>
                                 Latitude :
                                 <input (blur)="updateValueG($event,row,col,'lat')" type="number" placeholder="latitude"
-                                [value]="row[1][col].latitude" style="width: 80px;float :right">
+                                [value]="row[1][col].latitude" style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
                             </div>
                         </span>
                         <!--Date Time-->
@@ -153,7 +155,7 @@
                             <!--input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)"-->
                             <input [value]="row[1][col]"
                                    [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1"
-                                   (blur)="updateValue($event,row,col)" placeholder="Date Time">
+                                   (blur)="updateValue($event,row,col)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
                             <owl-date-time #dt1 [startAt]="row[1][col]"></owl-date-time>
                             </span>
                         <!--Data base-->
@@ -167,7 +169,7 @@
                           <ng-template #other_content>
                             {{row[1][col].path}}
                           </ng-template-->
-                            <mat-select [value]="row[1][col].path" (selectionChange)="updateDatabaseRef($event.value,row,col)">
+                            <mat-select [value]="row[1][col].path" (selectionChange)="updateDatabaseRef($event.value,row,col)" [disabled]="isNull(row[1][col])">
                               <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
                                 {{doc}}
                               </mat-option>
@@ -179,12 +181,15 @@
                                 {{row[1][col]}}
                             </td-->
                             <input  (blur)="updateValue($event,row,col)" [value]="row[1][col]" style="border:none; height: 40px;
-                                          background-color:rgba(0, 0, 0, 0);width: 170px; margin-right: 10px">
+                                          background-color:rgba(0, 0, 0, 0);width: 85%; margin-right: 10px" [disabled]="isNull(row[1][col])">
                         </span>
                     </span>
-                    <!--span>
-                      <mat-checkbox></mat-checkbox>
-                    </span-->
+                    <span *ngIf="! isNull(row[1][col])">
+                      <mat-checkbox [ngModel]="false" (click)="changeToNull(row,col)" ></mat-checkbox>
+                    </span>
+                    <span *ngIf="isNull(row[1][col])">
+                      <mat-checkbox [ngModel]="true" (click)="nullChange(row,col)" ></mat-checkbox>
+                    </span>
                 </td>
                 <td style="padding-right: 8px">
                     <button (click)="remove(row[0])" style="float: right" mat-raised-button color="warn"><mat-icon>delete</mat-icon>Remove</button>
