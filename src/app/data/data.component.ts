@@ -62,6 +62,8 @@ export class DataComponent implements OnInit {
   pressed;
   startX;
   startWidth;
+  True = true;
+  False = false;
   val = new Date(2018, 3, 10, 10, 30, 30);
   constructor(// private firestore: AngularFirestore,
               private route: ActivatedRoute,
@@ -174,7 +176,7 @@ export class DataComponent implements OnInit {
                   localData[x] = new Date(localData[x].seconds * 1000);
                 }
                 if (document.data()[x] == null) {
-                  console.log('error');
+                  /* console.log('error');
                   switch (this.dataTypes[x]) {
                     case 'string': {
                       data[x] = '';
@@ -217,10 +219,6 @@ export class DataComponent implements OnInit {
                       break;
                     }
                     case 'geopoint': {
-                      /* const gp = {
-                        longitude: 0,
-                        latitude: 0,
-                      };*/
                       data[x] = new firebase.firestore.GeoPoint(0, 0);
                       localData[x] = new firebase.firestore.GeoPoint(0, 0);
                       console.log('geopoint');
@@ -244,7 +242,7 @@ export class DataComponent implements OnInit {
                       console.log('error[default]');
                       break;
                     }
-                  }
+                  } */
                   bool = false;
                 } else {
                   switch (this.dataTypes[x]) {
@@ -1160,5 +1158,106 @@ export class DataComponent implements OnInit {
         this.pressed = false;
       }
     });
+  }
+
+  isNull(val) {
+    if (val == null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  nullChange(row, col) {
+    row[1][col] = '';
+    console.log(col);
+    const dt = {};
+    switch (this.dataTypes[col]) {
+      case 'string': {
+        dt[col] = '';
+        row[1][col] = '';
+        console.log('string');
+        break;
+      }
+      case 'number': {
+        dt[col] = 0;
+        row[1][col] = 0;
+        console.log('number');
+        break;
+      }
+      case 'boolean': {
+        dt[col] = false;
+        row[1][col] = false;
+        console.log('boolean');
+        break;
+      }
+      case 'map': {
+        const d = {};
+        for (const f of this.tableData[col]) {
+          d[f] = '';
+        }
+        dt[col] = d;
+        row[1][col] = d;
+        console.log('map');
+        break;
+      }
+      case 'array': {
+        dt[col] = [];
+        row[1][col] = [];
+        console.log('array');
+        break;
+      }
+      case 'datetime': {
+        dt[col] = new Date();
+        row[1][col] = new Date();
+        console.log('datetime');
+        break;
+      }
+      case 'geopoint': {
+        dt[col] = new firebase.firestore.GeoPoint(0, 0);
+        row[1][col] = new firebase.firestore.GeoPoint(0, 0);
+        console.log('geopoint');
+        break;
+      }
+      case 'database': {
+        dt[col] = '';
+        row[1][col] = '';
+        console.log('database');
+        break;
+      }
+      case 'optionselection': {
+        dt[col] = this.tableData[col][0];
+        row[1][col] = this.tableData[col][0];
+        console.log('optionselection');
+        break;
+      }
+      default: {
+        dt[col] = '';
+        row[1][col] = '';
+        console.log('error[default]');
+        break;
+      }
+    }
+    console.log(this.colId);
+    this.fs.collection(this.colId).doc(row[0]).update(dt);
+  }
+
+  changeToNull(row, col) {
+    /* if (confirm('Change ' + col + ' value of ' + row[0] + ' to NULL?')) {
+      console.log('yes');
+    } else {
+      console.log('no');
+    } */
+    row[1][col] = null;
+    const dt = {};
+    dt[col] = null;
+    this.fs.collection(this.colId).doc(row[0]).update(dt);
+  }
+  set() {
+    console.log(this.False);
+    console.log(this.True);
+    this.False = false;
+    this.True = true;
+    console.log('set');
   }
 }
