@@ -22,20 +22,32 @@
             </mat-toolbar>
             <div  style="display: flex;flex-direction: row   ;margin-left: 0px; margin-right:0px">
                 <div style="width: 75%; margin: 30px;padding: 0px 5px">
-                    <div style="margin-top:10px;" *ngFor="let f of fields">
+                    <div style="margin-top:20px;" *ngFor="let f of fields">
                         <mat-card style="display: flex">
+                            <span style="">
                             <span>{{f}}</span>
                             [<span>{{dataTypes[f]}}</span>]
+                            </span>
                             <span *ngIf="dataTypes[f]=='array'" >
                                     <select [(ngModel)]="allData[0][f]" (change)="updateValue($event,f)" required>
                                         <option value="string">String</option>
                                         <option value="number">Number</option>
                                         <option value="boolean">Boolean</option>
                                         <option value="database">Database</option>
+                                        <option value="datetime">Date Time</option>
+                                        <option value="map">Map</option>
+                                        <option value="geopoint">Geo Point</option>
                                     </select>
+                                    <span *ngIf="allData[0][f]=='map'">
+                                        [<span>
+                                            {{allData[0][f+'Fields']}}
+                                        </span>]
+                                    </span>
+                                    <button *ngIf="allData[0][f]=='map'"  (click)="openDialogMap(f+'Fields')">add fields</button>
+
                             </span>
                             <span *ngIf="dataTypes[f]=='map'">
-                                    <button mat-stroked-button (click)="openDialogMap(f)">add fields</button>
+                                    <button (click)="openDialogMap(f)">add fields</button>
                                     [<span *ngFor="let fi of allData[0][f]">
                                         {{fi}}
                                     </span>]

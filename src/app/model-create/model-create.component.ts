@@ -243,6 +243,11 @@ export class ModelCreateComponent implements OnInit {
     if (event.target.value === 'database') {
       this.openDialogDatabase(f + 'Ref');
     }
+    if (event.target.value === 'map') {
+      console.log('Map');
+      this.allData[0][f + 'Fields'] = [];
+      this.openDialogMap(f + 'Fields');
+    }
     const data = {};
     data[f] = event.target.value;
     cityRef.update(data);

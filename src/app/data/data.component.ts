@@ -175,6 +175,15 @@ export class DataComponent implements OnInit {
                   console.log(localData[x].seconds);
                   localData[x] = new Date(localData[x].seconds * 1000);
                 }
+                if (this.dataTypes[x] === 'array') {
+                  if (this.tableData[x] === 'datetime' && localData[x] !== undefined) {
+                    const date = [];
+                    for (const t of localData[x]) {
+                      date.push(new Date(t.seconds * 1000));
+                    }
+                    localData[x] = date;
+                  }
+                }
                 if (document.data()[x] == null) {
                   /* console.log('error');
                   switch (this.dataTypes[x]) {
@@ -402,6 +411,41 @@ export class DataComponent implements OnInit {
 
   }
 
+  updateValueArrayGeo(event, row, col, i, p) {
+    let lst;
+    const con = this.fs.collection(this.colId).doc(row[0]);
+    con.get()
+      .then(doc => {
+        if (!doc.exists) {
+          console.log('No such document!');
+        } else {
+          console.log('Document data:', doc.data());
+          lst = doc.data()[col];
+          const cityRef = this.fs.collection(this.colId).doc(row[0]);
+          const data = {};
+          const point = {
+            latitude: 0,
+            longitude: 0,
+          };
+          if (p === 'lon') {
+            point.longitude = +event.target.value;
+            point.latitude = lst[i].latitude;
+          } else {
+            point.latitude = +event.target.value;
+            point.longitude = lst[i].longitude;
+          }
+          lst.splice(i, 1);
+          lst.splice(i, 0, new firebase.firestore.GeoPoint(point.latitude, point.longitude));
+          console.log(row[1][col][i]);
+          data[col] = lst;
+          cityRef.update(data);
+        }
+      })
+      .catch(err => {
+        console.log('Error getting document', err);
+      });
+  }
+
   addArrayValue(row, col) {
     console.log('fine');
     if (this.tableData[col] === 'string') {
@@ -415,6 +459,19 @@ export class DataComponent implements OnInit {
     }
     if (this.tableData[col] === 'database') {
       row[1][col].push('');
+    }
+    if (this.tableData[col] === 'geopoint') {
+      row[1][col].push(new firebase.firestore.GeoPoint(0, 0));
+    }
+    if (this.tableData[col] === 'datetime') {
+      row[1][col].push(new Date());
+    }
+    if (this.tableData[col] === 'map') {
+      const d = {};
+      for (const f of this.tableData[col + 'Fields']) {
+        d[f] = '';
+      }
+      row[1][col].push(d);
     }
     const cityRef = this.fs.collection(this.colId).doc(row[0]);
     const data = {};
@@ -452,44 +509,49 @@ export class DataComponent implements OnInit {
           console.log('No such document!');
         } else {
           console.log('Document data:', doc.data());
-          lst = doc.data().col;
+          lst = doc.data()[col];
+          if (this.tableData[col] === 'string') {
+            console.log(event.target.value);
+            lst.splice(i, 1);
+            lst.splice(i, 0, event.target.value.trim() );
+          }
+          if (this.tableData[col] === 'number') {
+            console.log(event.target.value);
+            // lst = row[1][col].slice();
+            lst.splice(i, 1);
+            lst.splice(i, 0, +event.target.value );
+            // row[1][col][i] = +event.target.value;
+            console.log('lst', lst);
+            console.log(row[1][col]);
+          }
+          if (this.tableData[col] === 'boolean') {
+            console.log('true' === event.target.value);
+            // row[1][col][i]=!row[1][col][i];
+            lst.splice(i, 1);
+            lst.splice(i, 0, 'true' === event.target.value);
+          }
+          if (this.tableData[col] === 'database') {
+            lst.splice(i, 1);
+            lst.splice(i, 0, this.fire.fs.doc(event.value));
+            console.log(row[1][col][i].path);
+          }
+          if (this.tableData[col] === 'datetime') {
+            lst.splice(i, 1);
+            lst.splice(i, 0, new Date(event.value));
+          }
+          if (this.tableData[col] === 'map') {
+            console.log(row[1][col]);
+            lst = row[1][col];
+          }
+          const cityRef = this.fs.collection(this.colId).doc(row[0]);
+          const data = {};
+          data[col] = lst;
+          cityRef.update(data);
         }
       })
       .catch(err => {
         console.log('Error getting document', err);
       });
-    // row[1][col][i]=event.target.value;
-    if (this.tableData[col] === 'string') {
-      console.log(event.target.value);
-      row[1][col].splice(i, 1);
-      row[1][col].splice(i, 0, event.target.value.trim() );
-    }
-    if (this.tableData[col] === 'number') {
-      console.log(event.target.value);
-      // lst = row[1][col].slice();
-      lst.splice(i, 1);
-      lst.splice(i, 0, +event.target.value );
-      // row[1][col][i] = +event.target.value;
-      console.log('lst', lst);
-      console.log(row[1][col]);
-    }
-    if (this.tableData[col] === 'boolean') {
-      console.log('true' === event.target.value);
-      // row[1][col][i]=!row[1][col][i];
-      row[1][col].splice(i, 1);
-      row[1][col].splice(i, 0, 'true' === event.target.value);
-    }
-    if (this.tableData[col] === 'database') {
-      row[1][col].splice(i, 1);
-      row[1][col].splice(i, 0, this.fire.fs.doc(event.value) );
-      console.log(row[1][col][i].path);
-    }
-    const cityRef = this.fs.collection(this.colId).doc(row[0]);
-    const data = {};
-    data[col] = lst;
-    cityRef.update(data);
-
-    console.log(row[1][col]);
   }
   test(event, row, col, i) {
     console.log(row[1][col]);
@@ -538,9 +600,9 @@ export class DataComponent implements OnInit {
     }
     if (this.dataTypes[col] === 'datetime') {
       console.log(event.target.value);
-      row[1][col] = new Date(event.target.value);
+      row[1][col] = new Date(event.value);
       console.log(row[1][col]);
-      data[col] = new Date(event.target.value);
+      data[col] = new Date(event.value);
       cityRef.update(data);
       return;
     }
@@ -813,6 +875,9 @@ export class DataComponent implements OnInit {
       this.tableData[col] = this.arrayDataType;
       if ( result === 'database') {
         this.openDialogDatabase(col);
+      }
+      if (result === 'map') {
+        this.openDialogMap(col + 'Fields');
       }
       data[col] = this.arrayDataType;
       connection.update(data);
