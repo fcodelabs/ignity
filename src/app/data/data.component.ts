@@ -987,10 +987,13 @@ export class DataComponent implements OnInit {
 
   openDialogMap(f): void {
     const mapFields = [{value: ''}];
+    const mapDataTypes = {};
+    const mapRefs = {};
+    const mapOptions = {};
 
     const dialogRef = this.dialog.open(MapComponent, {
-      width: '350px',
-      data: {fields: mapFields}
+      width: '600px',
+      data: {fields: mapFields, dataTypes: mapDataTypes, refs: mapRefs, options: mapOptions}
     });
     let connection;
     if (this.superColId == null) {
@@ -1003,27 +1006,75 @@ export class DataComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result == null);
       const flds = [];
+      const mapDT = {};
+      const data = {
+        datatypes: this.dataTypes,
+      };
       if (!(result == null)) {
         console.log(result.fields);
         for (const x of result.fields) {
-          if (x.value !== '') {
+          if (x.value.trim() !== '') {
             flds.push(x.value.trim());
+            if (result.dataTypes[x.value] === undefined) {
+              mapDT[x.value.trim()] = 'string';
+            } else {
+              mapDT[x.value.trim()] = result.dataTypes[x.value];
+              if (result.dataTypes[x.value] === 'database') {
+                data[x.value.trim() + 'MapRef'] = result.refs[x.value];
+                this.tableData[x.value.trim() + 'MapRef'] = result.refs[x.value];
+              } else if (result.dataTypes[x.value] === 'optionselection') {
+                data[x.value.trim() + 'MapOptions'] = result.options[x.value];
+                this.tableData[x.value.trim() + 'MapOptions'] = result.options[x.value];
+              }
+            }
           }
         }
       } else {
         return;
       }
-      const data = {
-        datatypes: this.dataTypes,
-      };
       this.tableData[f] = flds;
+      this.tableData[f + 'MapDT'] = mapDT;
       const upData = {};
+      data[f + 'MapDT'] = mapDT;
+      const d = {};
+      for (const j of this.tableData[f]) {
+        switch (this.tableData[f + 'MapDT'][j]) {
+          case 'string': {
+            d[j] = '';
+            break;
+          }
+          case 'number': {
+            d[j] = 0;
+            break;
+          }
+          case 'boolean': {
+            d[j] = false;
+            break;
+          }
+          case 'datetime': {
+            d[j] = new Date();
+            break;
+          }
+          case 'geopoint': {
+            d[j] = new firebase.firestore.GeoPoint(0, 0);
+            break;
+          }
+          case 'database': {
+            d[j] = '';
+            break;
+          }
+          case 'optionselection': {
+            d[j] = '';
+            break;
+          }
+          default: {
+            d[j] = '';
+            break;
+          }
+        }
+      }
       for (const i of this.allData) {
         const con = this.fs.collection(this.colId).doc(i[0]);
-        const d = {};
-        for (const j of this.tableData[f]) {
-          d[j] = '';
-        }
         i[1][f] = d;
         upData[f] = d;
         con.update(upData);

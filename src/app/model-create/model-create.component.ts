@@ -300,7 +300,7 @@ export class ModelCreateComponent implements OnInit {
         console.log(result.fields);
         console.log(result.dataTypes);
         for (const x of result.fields) {
-          if (x.value !== '') {
+          if (x.value.trim() !== '') {
             flds.push(x.value.trim());
             console.log(result.dataTypes[x.value]);
             if (result.dataTypes[x.value] === undefined) {
