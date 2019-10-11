@@ -158,6 +158,21 @@ export class DataComponent implements OnInit {
                 this.collectionDocs[x] = docs;
               }
             }
+            if (this.dataTypes[x] === 'map') {
+              for (const field of this.tableData[x]) {
+                if (this.tableData[x + 'MapDT'][field] === 'database') {
+                  const docs = [];
+                  this.fire.fs.collection(this.tableData[field + 'MapRef']).get()
+                    .then(snapshot => {
+                      snapshot.forEach(document => {
+                        console.log(document.id);
+                        docs.push(this.tableData[field + 'MapRef'] + '/' + document.id);
+                      });
+                    });
+                  this.collectionDocs[field + 'MapRef'] = docs;
+                }
+              }
+            }
           }
           console.log(this.collectionDocs);
           console.log('fire lst1');
@@ -183,6 +198,27 @@ export class DataComponent implements OnInit {
                     }
                     localData[x] = date;
                   }
+                }
+                if (this.dataTypes[x] === 'map') {
+                  for (const f of this.tableData[x]) {
+                    if (this.tableData[x + 'MapDT'][f] === 'datetime') {
+                      console.log(localData[x] === null);
+                      if (localData[x] === null || localData[x][f] === undefined) {
+                        // localData[x][f] = new Date();
+                      } else  {
+                        localData[x][f] = new Date(localData[x][f].seconds * 1000);
+                      }
+                    } else if (this.tableData[x + 'MapDT'][f] === 'geopoint') {
+                      if (localData[x] !== null && localData[x][f] === undefined) {
+                        localData[x][f] = new firebase.firestore.GeoPoint(0, 0);
+                      }
+                    } else if (this.tableData[x + 'MapDT'][f] === 'database') {
+                      if (localData[x] !== null && localData[x][f] === undefined) {
+                        localData[x][f] = this.collectionDocs[f + 'MapRef'][0];
+                      }
+                    }
+                  }
+                  data[x] = localData[x];
                 }
                 if (document.data()[x] == null) {
                   /* console.log('error');
@@ -558,6 +594,70 @@ export class DataComponent implements OnInit {
     console.log(event.target.value);
     console.log(row[1][col][i]);
   }
+  updateValueMapGeo(event, row, col, f, p) {
+    const point = {
+      longitude: 0,
+      latitude: 0
+    }
+    if (p === 'lon') {
+      point.longitude = +event.target.value;
+      point.latitude = row[1][col][f].latitude;
+    } else {
+      point.longitude = row[1][col][f].longitude;
+      point.latitude = +event.target.value;
+    }
+    row[1][col][f] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col + '.' + f] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
+    connection.update(data);
+  }
+
+  updateValueMap(event, row, col, f) {
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    switch (this.tableData[col + 'MapDT'][f]) {
+      case 'string': {
+        console.log(row[1][col][f]);
+        data[col + '.' + f] = row[1][col][f];
+        console.log(data);
+        break;
+      }
+      case 'number': {
+        console.log(row[1][col][f]);
+        data[col + '.' + f] = row[1][col][f];
+        console.log(data);
+        break;
+      }
+      case 'boolean': {
+        console.log(row[1][col][f]);
+        data[col + '.' + f] = !row[1][col][f];
+        console.log(data);
+        break;
+      }
+      case 'datetime': {
+        console.log(row[1][col][f]);
+        data[col + '.' + f] = new Date(event.value);
+        console.log(data);
+        break;
+      }
+      case 'database': {
+        console.log(event);
+        data[col + '.' + f] = this.fs.doc(event);
+        break;
+      }
+      case 'optionselection': {
+        console.log(row[1][col][f]);
+        data[col + '.' + f] = row[1][col][f];
+        console.log(data);
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    connection.update(data);
+  }
 
   updateValue(event, row, col) {
     const cityRef = this.fs.collection(this.colId).doc(row[0]);
@@ -610,7 +710,7 @@ export class DataComponent implements OnInit {
     console.log(col);
     console.log(event.target.textContent.trim());
     data[col] = event.target.textContent.trim();
-    cityRef.update(data);
+    // cityRef.update(data);
   }
 
   add() {
@@ -1109,7 +1209,40 @@ export class DataComponent implements OnInit {
           case 'map': {
             const d = {};
             for (const f of this.tableData[entry]) {
-              d[f] = '';
+              switch (this.tableData[entry + 'MapDT'][f]) {
+                case 'string': {
+                  d[f] = '';
+                  break;
+                }
+                case 'number': {
+                  d[f] = 0;
+                  break;
+                }
+                case 'boolean': {
+                  d[f] = false;
+                  break;
+                }
+                case 'datetime': {
+                  d[f] = new Date();
+                  break;
+                }
+                case 'geopoint': {
+                  d[f] = new firebase.firestore.GeoPoint(0, 0);
+                  break;
+                }
+                case 'database': {
+                  d[f] = '';
+                  break;
+                }
+                case 'optionselection': {
+                  d[f] = '';
+                  break;
+                }
+                default: {
+                  d[f] = '';
+                  break;
+                }
+              }
             }
             dt[entry] = d;
             console.log('map');
@@ -1259,7 +1392,40 @@ export class DataComponent implements OnInit {
       case 'map': {
         const d = {};
         for (const f of this.tableData[col]) {
-          d[f] = '';
+          switch (this.tableData[col + 'MapDT'][f]) {
+            case 'string': {
+              d[f] = '';
+              break;
+            }
+            case 'number': {
+              d[f] = 0;
+              break;
+            }
+            case 'boolean': {
+              d[f] = false;
+              break;
+            }
+            case 'datetime': {
+              d[f] = new Date();
+              break;
+            }
+            case 'geopoint': {
+              d[f] = new firebase.firestore.GeoPoint(0, 0);
+              break;
+            }
+            case 'database': {
+              d[f] = '';
+              break;
+            }
+            case 'optionselection': {
+              d[f] = '';
+              break;
+            }
+            default: {
+              d[f] = '';
+              break;
+            }
+          }
         }
         dt[col] = d;
         row[1][col] = d;
@@ -1313,8 +1479,19 @@ export class DataComponent implements OnInit {
     } else {
       console.log('no');
     } */
-    row[1][col] = null;
     const dt = {};
+    /* if (this.dataTypes[col] === 'map') {
+      const d = {};
+      for (const f of this.tableData[col]) {
+        d[f] = null;
+      }
+      row[1][col] = d;
+      dt[col] = d;
+    } else {
+        row[1][col] = null;
+        dt[col] = null;
+    }*/
+    row[1][col] = null;
     dt[col] = null;
     this.fs.collection(this.colId).doc(row[0]).update(dt);
   }

@@ -28,7 +28,7 @@
             <tr>
                 <th><span>Document ID</span><span class="ui-column-resizer" (mousedown)="onMouseDown($event)"></span></th>
                 <th style="width: 200px" *ngFor="let col of collection[0]">
-                  <div style="width: 200px">
+                  <div style="width: 300px">
                     <span>{{col}}</span>
                     <span class="ui-column-resizer" (mousedown)="onMouseDown($event)"></span>
                     <span style="float: right; width: 50%">
@@ -159,12 +159,51 @@
                         </span>
                         <!--map-->
                         <span *ngSwitchCase="'map'">
-                            <span *ngFor="let f of tableData[col]">
-                                <div style="margin-bottom: 5px">
-                                    {{f}}
-                                    <input (blur)="updateValue($event,row,col)" [(ngModel)]="row[1][col][f]"
-                                    style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
-                                </div>
+                            <span *ngIf="!isNull(row[1][col])">
+                                <span *ngFor="let f of tableData[col]" disabled="isNull(row[1][col])">
+                                    <div style="margin-bottom: 5px">
+                                        {{f}}
+                                        <input *ngIf="tableData[col+'MapDT'][f] == 'string'" (blur)="updateValueMap($event,row,col,f)" [(ngModel)]="row[1][col][f]"
+                                             style="width: 155px;float :right" [disabled]="isNull(row[1][col])">
+                                        <input *ngIf="tableData[col+'MapDT'][f] == 'number'" (blur)="updateValueMap($event,row,col,f)" [(ngModel)]="row[1][col][f]"
+                                               style="width: 155px;float :right" [disabled]="isNull(row[1][col])" type="number">
+                                        <mat-checkbox style="float: right" *ngIf="tableData[col+'MapDT'][f] == 'boolean'"  [(ngModel)]="row[1][col][f]"
+                                                      (click)="updateValueMap($event,row,col,f)" [disabled]="isNull(row[1][col])"></mat-checkbox>
+                                        <span *ngIf="tableData[col+'MapDT'][f] == 'datetime'">
+                                            <input style="float: right" [value]="row[1][col][f]"
+                                                   [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1"
+                                                   (dateTimeInput)="updateValueMap($event,row,col,f)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
+                                            <owl-date-time #dt1 [startAt]="row[1][col][f]"></owl-date-time>
+                                        </span>
+                                        <span *ngIf="tableData[col+'MapDT'][f] == 'geopoint'">
+                                            <div style="margin-bottom: 5px">
+                                                Longitude :
+                                                <input (blur)="updateValueMapGeo($event,row,col,f,'lon')" type="number" placeholder="longitude"
+                                                       [value]="row[1][col][f].longitude" style="width: 155px;float :right" [disabled]="isNull(row[1][col])">
+                                            </div>
+                                            <div>
+                                                Latitude :
+                                                <input (blur)="updateValueMapGeo($event,row,col,f,'lat')" type="number" placeholder="latitude"
+                                                       [value]="row[1][col][f].latitude" style="width: 155px;float :right" [disabled]="isNull(row[1][col])">
+                                            </div>
+                                        </span>
+                                        <span *ngIf="tableData[col+'MapDT'][f] == 'database'">
+                                            <mat-select style="width: 80%; float: right" [value]="row[1][col][f].path" (selectionChange)="updateValueMap($event.value,row,col,f)"
+                                                        [disabled]="isNull(row[1][col])">
+                                              <mat-option *ngFor="let doc of collectionDocs[f + 'MapRef']" [value]="doc">
+                                                {{doc}}
+                                              </mat-option>
+                                            </mat-select>
+                                        </span>
+                                        <span *ngIf="tableData[col+'MapDT'][f] == 'optionselection'">
+                                              <mat-select style="width: 80%; float: right" [(ngModel)]="row[1][col][f]" (selectionChange)="updateValueMap($event,row,col,f)" [disabled]="isNull(row[1][col])">
+                                                  <mat-option *ngFor="let opn of tableData[f + 'MapOptions']" [value]="opn">
+                                                  {{opn}}
+                                                  </mat-option>
+                                              </mat-select>
+                                        </span>
+                                    </div>
+                                </span>
                             </span>
                         </span>
                         <!--Geo point-->
