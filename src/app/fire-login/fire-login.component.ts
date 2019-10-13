@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import {FireConnectionService} from '../shared/fire-connection.service';
+import { FireConnectionService } from '../shared/fire-connection.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-fire-login',
@@ -17,9 +18,11 @@ export class FireLoginComponent implements OnInit {
   messagingSenderId = '814248522504';
   appId = '1:814248522504:web:dd849efcd11e5a0d';
   fireConfig = '';
-
+  // cookieValue = 'UNKNOWN';
+  allCookies = {};
   constructor(private router: Router,
-              private fireConnection: FireConnectionService) { }
+              private fireConnection: FireConnectionService,
+              private cookieService: CookieService) { }
 
   ngOnInit() {
     /* this.firebaseApp = eval('(' + this.fireConfig + ')');
@@ -30,6 +33,14 @@ export class FireLoginComponent implements OnInit {
     this.storageBucket = this.firebaseApp.storageBucket;
     this.messagingSenderId = this.firebaseApp.messagingSenderId;
     this.appId = this.firebaseApp.appId; */
+    //  this.cookieService.set( 'Test', 'Hello World' );
+    // this.cookieValue = this.cookieService.get('Test');
+    // console.log(this.cookieValue);
+    this.allCookies = this.cookieService.getAll();
+    // tslint:disable-next-line:forin
+    for (const cookie in this.allCookies) {
+      console.log(cookie);
+    }
   }
 
   onSetUp() {
@@ -40,6 +51,10 @@ export class FireLoginComponent implements OnInit {
     this.apiKey = this.firebaseApp.apiKey;
     this.fireConnection.setFireObj(this.firebaseApp);
     localStorage.setItem('firebaseData', JSON.stringify(this.firebaseApp));
+    this.cookieService.set(this.firebaseApp.projectId , this.fireConfig);
     return this.router.navigate(['models']);
+  }
+  selectApp(config) {
+    this.fireConfig = config;
   }
 }

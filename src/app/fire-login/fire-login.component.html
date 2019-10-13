@@ -52,6 +52,19 @@
     <mat-form-field style="width: 400px">
       <input matInput placeholder="appId" [(ngModel)]="appId" disabled>
     </mat-form-field-->
+    <span style="margin-left: 25%; margin-right: 25%; font-family: Calibri;" *ngFor="let cookie of allCookies | keyvalue">
+        <mat-card>
+          <mat-card-header style="font-size: 20px;">
+            {{cookie.key}}
+          </mat-card-header>
+          <mat-card-content style="font-style: italic">
+            {{cookie.value}}
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button (click)="selectApp(cookie.value)"><span style="color: blue">SELECT</span></button>
+          </mat-card-actions>
+        </mat-card>
+    </span>
   </div>
   <div style="align-items: flex-start">
   </div>

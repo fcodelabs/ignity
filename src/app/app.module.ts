@@ -7,6 +7,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { ResizableModule } from 'angular-resizable-element';
+import { CookieService } from 'ngx-cookie-service';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -70,7 +71,7 @@ const config = {
     AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent, DocumentIDComponent],
   entryComponents: [ModelComponent, FieldComponent, MapComponent, OptionSelectionComponent, SelectArrayDatatypeComponent,
     AddMapFieldsComponent, OptionSelectionFieldsComponent, DatabaseComponent, DatabasePathComponent, DocumentIDComponent],
-  providers: [],
+  providers: [CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
