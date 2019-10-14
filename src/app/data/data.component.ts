@@ -699,7 +699,7 @@ export class DataComponent implements OnInit {
       return;
     }
     if (this.dataTypes[col] === 'datetime') {
-      console.log(event.target.value);
+      console.log(event.value);
       row[1][col] = new Date(event.value);
       console.log(row[1][col]);
       data[col] = new Date(event.value);
