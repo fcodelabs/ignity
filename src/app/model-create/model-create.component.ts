@@ -255,8 +255,12 @@ export class ModelCreateComponent implements OnInit {
 
   openDialogMap(f): void {
     let mapFields = [];
+    let mapDataTypes;
+    const mapRefs = {};
+    const mapOptions = {};
     if (this.allData[0][f].length === 0) {
       mapFields = [{value: ''}];
+      mapDataTypes = {};
     } else {
       for (const x of this.allData[0][f]) {
         const d = {
@@ -265,12 +269,24 @@ export class ModelCreateComponent implements OnInit {
         d.value = x;
         mapFields.push(d);
       }
+      mapDataTypes = this.allData[0][f + 'MapDT'];
+      // tslint:disable-next-line:forin
+      for (const fld in mapFields) {
+        if (mapDataTypes[mapFields[fld].value] === 'database') {
+          const fldName = mapFields[fld].value;
+          mapRefs[fldName] = this.allData[0][mapFields[fld].value + 'MapRef'];
+        } else if (mapDataTypes[mapFields[fld].value] === 'optionselection') {
+          mapOptions[mapFields[fld].value] = this.allData[0][mapFields[fld].value + 'MapOptions'];
+        }
+      }
+      console.log(mapRefs);
+      console.log(mapOptions);
     }
 
 
     const dialogRef = this.dialog.open(MapComponent, {
-      width: '350px',
-      data: {fields: mapFields}
+      width: '600px',
+      data: {fields: mapFields, dataTypes: mapDataTypes, refs: mapRefs, options: mapOptions}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -278,19 +294,36 @@ export class ModelCreateComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result == null);
       const flds = [];
+      const mapDT = {};
+      const data = {};
       if (!(result == null)) {
         console.log(result.fields);
+        console.log(result.dataTypes);
         for (const x of result.fields) {
-          if (x.value !== '') {
+          if (x.value.trim() !== '') {
             flds.push(x.value.trim());
+            console.log(result.dataTypes[x.value]);
+            if (result.dataTypes[x.value] === undefined) {
+              mapDT[x.value.trim()] = 'string';
+            } else {
+              mapDT[x.value.trim()] = result.dataTypes[x.value];
+              if (result.dataTypes[x.value] === 'database') {
+                data[x.value.trim() + 'MapRef'] = result.refs[x.value];
+                this.allData[0][x.value.trim() + 'MapRef'] = result.refs[x.value];
+              } else if (result.dataTypes[x.value] === 'optionselection') {
+                data[x.value.trim() + 'MapOptions'] = result.options[x.value];
+                this.allData[0][x.value.trim() + 'MapOptions'] = result.options[x.value];
+              }
+            }
           }
         }
       } else {
         return;
       }
-      const data = {};
       this.allData[0][f] = flds;
+      this.allData[0][f + 'MapDT'] = mapDT;
       data[f] = flds;
+      data[f + 'MapDT'] = mapDT;
       let cityRef;
       if (this.docId == null) {
         cityRef = this.fs.collection('metadata').doc(this.modelName);

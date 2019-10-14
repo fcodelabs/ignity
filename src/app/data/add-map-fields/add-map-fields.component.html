@@ -1,13 +1,33 @@
 <div>
   <h1 mat-dialog-title><mat-toolbar><span>Field : Create New</span></mat-toolbar></h1>
   <div mat-dialog-content>
-    <p>Field Key:</p>
     <span *ngFor="let x of data.fields">
-
-            <mat-form-field >
-                <input matInput [(ngModel)]="x['value']" (blur)="getValue($event)">
+        Field Key :
+        <mat-form-field >
+            <input matInput [(ngModel)]="x['value']" (blur)="getValue($event)">
+        </mat-form-field>
+        Data Type :
+            <mat-form-field>
+                <mat-select [(ngModel)]="data.dataTypes[x['value']]" placeholder="Select Data Type">
+                  <mat-option value="string">String</mat-option>
+                  <mat-option value="number">Number</mat-option>
+                  <mat-option value="boolean">Boolean</mat-option>
+                  <mat-option value="datetime">Date Time</mat-option>
+                  <mat-option value="geopoint">Geo Point</mat-option>
+                  <mat-option value="database">Database</mat-option>
+                  <mat-option value="optionselection">Option</mat-option>
+                </mat-select>
             </mat-form-field>
-        </span>
+            <span *ngIf="data.dataTypes[x['value']] == 'database'">
+                Database Reference :
+                  <mat-form-field>
+                    <input matInput [(ngModel)]="data.refs[x['value']]" (blur)="getValue($event)">
+                  </mat-form-field>
+            </span>
+            <button *ngIf="data.dataTypes[x['value']] == 'optionselection'" mat-stroked-button
+                    (click)="openDialogOptionSelection(x['value'])">add options</button>
+          <br>
+    </span>
   </div>
   <div mat-dialog-actions>
     <!--button mat-button (click)="onNoClick()">No Thanks</button-->
