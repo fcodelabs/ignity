@@ -699,7 +699,7 @@ export class DataComponent implements OnInit {
       return;
     }
     if (this.dataTypes[col] === 'datetime') {
-      console.log(event.target.value);
+      console.log(event.value);
       row[1][col] = new Date(event.value);
       console.log(row[1][col]);
       data[col] = new Date(event.value);
@@ -708,9 +708,9 @@ export class DataComponent implements OnInit {
     }
     console.log(row[0]);
     console.log(col);
-    console.log(event.target.textContent.trim());
-    data[col] = event.target.textContent.trim();
-    // cityRef.update(data);
+    console.log(event.target.value.trim());
+    data[col] = event.target.value.trim();
+    cityRef.update(data);
   }
 
   add() {

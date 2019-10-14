@@ -224,7 +224,7 @@
                             <!--input type="datetime-local" name="date-time" [value]="secondsToDate(row[1][col].seconds)" (blur)="updateValue($event,row,col)"-->
                             <input [value]="row[1][col]"
                                    [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1"
-                                   (dateTimeInput)="updateValue($event,row,col)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
+                                   (dateTimeChange)="updateValue($event,row,col)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
                             <owl-date-time #dt1 [startAt]="row[1][col]"></owl-date-time>
                         </span>
                         <!--Data base-->
