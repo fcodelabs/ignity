@@ -77,29 +77,29 @@
                         </span>
                         <!--array-->
                         <span *ngSwitchCase="'array'">
-                            <div *ngFor="let x of row[1][col];let i = index"[attr.data-index]="i" style="width: 100%">
+                            <div *ngFor="let x of row[1][col] | keyvalue" style="width: 100%">
 
                                 <div *ngIf="tableData[col]=='string'"  >
                                     <span>
-                                        <input  (blur)="updateValueArray($event,row,col,i)" [value]="row[1][col][i]" style="border:none; height: 40px;
+                                        <input  (blur)="updateValueArray($event,row,col,x.key)" [(ngModel)]="x.value" style="border:none; height: 40px;
                                           background-color:rgba(0, 0, 0, 0);width: 85%;" [disabled]="isNull(row[1][col])">
                                     </span>
                                     <span>
-                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
                                     </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='number'">
-                                    <input (blur)="updateValueArray($event,row,col,i)" type="number" [ngModel]="row[1][col][i]" style="border: none;
+                                    <input (blur)="updateValueArray($event,row,col,x.key)" type="number" [(ngModel)]="x.value" style="border: none;
                                       background-color:rgba(0, 0, 0, 0);width: 85%; height: 40px;" [disabled]="isNull(row[1][col])">
                                     <span>
-                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
                                     </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='database'">
                                     <span>
-                                        <mat-select [value]="row[1][col][i].path" (selectionChange)="updateValueArray($event,row,col,i)"
+                                        <mat-select style="width: 85%" [value]="row[1][col][x.key].path" (selectionChange)="updateValueArray($event,row,col,x.key)"
                                                     [disabled]="isNull(row[1][col])">
                                             <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
                                               {{doc}}
@@ -107,49 +107,57 @@
                                         </mat-select>
                                     </span>
                                   <span>
-                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
                                   </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='boolean'" style="height: 20px">
-                                    <select [value]="row[1][col][i]" (change)="updateValueArray($event,row,col,i)" matNativeControl [disabled]="isNull(row[1][col])" required>
+                                    <!--select [value]="row[1][col][x.key]" (change)="updateValueArray($event,row,col,x.key)" matNativeControl [disabled]="isNull(row[1][col])" required>
                                         <option value=true >true</option>
                                         <option value=false>false</option>
-                                    </select>
-                                    <!--mat-checkbox  [(ngModel)]="row[1][col][i]" (click)="updateValueArray($event,row,col,i)" ></mat-checkbox--->
+                                    </select-->
+                                    <span style="padding-bottom: 10px">
+                                      <mat-checkbox style="padding-left: 30px;" [(ngModel)]="row[1][col][x.key]" (change)="updateValueArray($event,row,col,x.key)" [disabled]="isNull(row[1][col])"></mat-checkbox>
+                                    </span>
                                     <span>
-                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,i)"><mat-icon>delete</mat-icon></button>
+                                      <button style="padding-left: 200px;" mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
                                     </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='datetime'">
-                                    <input [value]="row[1][col][i]"
+                                    <input [value]="row[1][col][x.key]"
                                            [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" v
-                                           (dateTimeInput)="updateValueArray($event,row,col,i)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
-                                    <owl-date-time #dt1 [startAt]="row[1][col][i]"></owl-date-time>
+                                           (dateTimeChange)="updateValueArray($event,row,col,x.key)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
+                                    <owl-date-time #dt1 [startAt]="row[1][col][x.key]"></owl-date-time>
+                                    <span>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
+                                    </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='map'">
                                      <span *ngFor="let f of tableData[col+'Fields']">
                                           <div style="margin-bottom: 5px">
                                               {{f}}
-                                            <input (blur)="updateValueArray($event,row,col,i)" [(ngModel)]="row[1][col][i][f]"
+                                            <input (blur)="updateValueArray($event,row,col,x.key)" [(ngModel)]="row[1][col][x.key][f]"
                                                    style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
                                           </div>
                                      </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='geopoint'">
-                                      <div style="margin-bottom: 5px">
+                                      <div style="margin-bottom: 5px; width: 85%">
                                           Longitude :
-                                          <input (blur)="updateValueArrayGeo($event,row,col,i,'lon')" type="number" placeholder="longitude"
-                                                 [value]="row[1][col][i].longitude" style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
+                                          <input (blur)="updateValueArrayGeo($event,row,col,x.key,'lon')" type="number" placeholder="longitude"
+                                                 [value]="row[1][col][x.key].longitude" style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
                                       </div>
-                                      <div>
+                                      <div style="width: 85%">
                                           Latitude :
-                                          <input (blur)="updateValueArrayGeo($event,row,col,i,'lat')" type="number" placeholder="latitude"
-                                                 [value]="row[1][col][i].latitude" style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
+                                          <input (blur)="updateValueArrayGeo($event,row,col,x.key,'lat')" type="number" placeholder="latitude"
+                                                 [value]="row[1][col][x.key].latitude" style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
                                       </div>
+                                    <span>
+                                      <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
+                                    </span>
                                 </div>
                                 <hr>
                             </div>

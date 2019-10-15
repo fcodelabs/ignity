@@ -192,11 +192,23 @@ export class DataComponent implements OnInit {
                 }
                 if (this.dataTypes[x] === 'array') {
                   if (this.tableData[x] === 'datetime' && localData[x] !== undefined) {
-                    const date = [];
+                    const dateMap = {};
+                    let k = 0;
+                    console.log(localData[x]);
                     for (const t of localData[x]) {
-                      date.push(new Date(t.seconds * 1000));
+                      dateMap[k] = new Date(t.seconds * 1000);
+                      k = k + 1;
                     }
-                    localData[x] = date;
+                    localData[x] = dateMap;
+                  } else if (localData[x] !== undefined) {
+                    const dataMap = {};
+                    let k = 0;
+                    for (const i of localData[x]) {
+                      dataMap[k] = i;
+                      k = k + 1;
+                    }
+                    console.log(dataMap);
+                    localData[x] = dataMap;
                   }
                 }
                 if (this.dataTypes[x] === 'map') {
@@ -448,41 +460,26 @@ export class DataComponent implements OnInit {
   }
 
   updateValueArrayGeo(event, row, col, i, p) {
-    let lst;
-    const con = this.fs.collection(this.colId).doc(row[0]);
-    con.get()
-      .then(doc => {
-        if (!doc.exists) {
-          console.log('No such document!');
-        } else {
-          console.log('Document data:', doc.data());
-          lst = doc.data()[col];
-          const cityRef = this.fs.collection(this.colId).doc(row[0]);
-          const data = {};
-          const point = {
-            latitude: 0,
-            longitude: 0,
-          };
-          if (p === 'lon') {
-            point.longitude = +event.target.value;
-            point.latitude = lst[i].latitude;
-          } else {
-            point.latitude = +event.target.value;
-            point.longitude = lst[i].longitude;
-          }
-          lst.splice(i, 1);
-          lst.splice(i, 0, new firebase.firestore.GeoPoint(point.latitude, point.longitude));
-          console.log(row[1][col][i]);
-          data[col] = lst;
-          cityRef.update(data);
-        }
-      })
-      .catch(err => {
-        console.log('Error getting document', err);
-      });
+    const cityRef = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    const point = {
+      latitude: 0,
+      longitude: 0,
+    };
+    if (p === 'lon') {
+      point.longitude = +event.target.value;
+      point.latitude = row[1][col][i].latitude;
+    } else {
+      point.latitude = +event.target.value;
+      point.longitude = row[1][col][i].longitude;
+    }
+    row[1][col][i] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
+    console.log(row[1][col][i]);
+    data[col] = row[1][col];
+    cityRef.update(data);
   }
 
-  addArrayValue(row, col) {
+  /*addArrayValue(row, col) {
     console.log('fine');
     if (this.tableData[col] === 'string') {
       row[1][col].push('');
@@ -513,7 +510,7 @@ export class DataComponent implements OnInit {
     const data = {};
     data[col] = row[1][col];
     cityRef.update(data);
-  }
+  }*/
 
   updateDatabaseRef(event, row, col) {
     console.log(row[1][col]);
@@ -526,7 +523,7 @@ export class DataComponent implements OnInit {
     connection.update(data);
   }
 
-  deleteArrayItem(row, col, i) {
+  /*deleteArrayItem(row, col, i) {
     console.log(i);
     row[1][col].splice(i, 1);
     console.log('delete');
@@ -534,9 +531,133 @@ export class DataComponent implements OnInit {
     const data = {};
     data[col] = row[1][col];
     connection.update(data);
-  }
+  }*/
 
   updateValueArray(event, row, col, i) {
+    switch (this.tableData[col]) {
+      case 'string': {
+        console.log(row[1][col][i]);
+        console.log(event.target.value);
+        row[1][col][i] = event.target.value;
+        console.log(row[1][col][i]);
+        break;
+      }
+      case 'number': {
+        console.log(row[1][col][i]);
+        console.log(+event.target.value);
+        row[1][col][i] = +event.target.value;
+        console.log(row[1][col][i]);
+        break;
+      }
+      case 'database': {
+        console.log(row[1][col][i]);
+        console.log(event.value);
+        row[1][col][i] = this.fire.fs.doc(event.value);
+        console.log(row[1][col][i].path);
+        break;
+      }
+      case 'boolean': {
+        console.log(row[1][col][i]);
+        console.log(event.value);
+        console.log(row[1][col]);
+        break;
+      }
+      case 'datetime': {
+        row[1][col][i] = new Date(event.value);
+        console.log(row[1][col][i]);
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    const lst = [];
+    // tslint:disable-next-line:forin
+    for (const x in row[1][col]) {
+      lst.push(row[1][col][x]);
+    }
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = lst;
+    connection.update(data);
+  }
+
+  addArrayValue(row, col) {
+    let k = 0;
+    for (const x in row[1][col]) {
+      if (k < +x) {
+        k = +x;
+      }
+    }
+    console.log(k + 1);
+    switch (this.tableData[col]) {
+      case 'string': {
+        row[1][col][k + 1] = '';
+        console.log(row[1][col]);
+        break;
+      }
+      case 'number': {
+        row[1][col][k + 1] = 0;
+        console.log(row[1][col]);
+        break;
+      }
+      case 'database': {
+        row[1][col][k + 1] = '';
+        console.log(row[1][col]);
+        break;
+      }
+      case 'boolean': {
+        row[1][col][k + 1] = false;
+        console.log(row[1][col]);
+        break;
+      }
+      case 'datetime': {
+        row[1][col][k + 1] = new Date();
+        console.log(row[1][col]);
+        break;
+      }
+      case 'map': {
+        const d = {};
+        for (const f of this.tableData[col + 'Fields']) {
+          d[f] = '';
+        }
+        row[1][col][k + 1] = d;
+        break;
+      }
+      case 'geopoint': {
+        row[1][col][k + 1] = new firebase.firestore.GeoPoint(0, 0);
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    const lst = [];
+    // tslint:disable-next-line:forin
+    for (const x in row[1][col]) {
+      lst.push(row[1][col][x]);
+    }
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = lst;
+    connection.update(data);
+  }
+
+  deleteArrayItem(row, col, i) {
+    console.log(i);
+    delete row[1][col][i];
+    const lst = [];
+    // tslint:disable-next-line:forin
+    for (const x in row[1][col]) {
+      lst.push(row[1][col][x]);
+    }
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = lst;
+    connection.update(data);
+  }
+
+  /*updateValueArray(event, row, col, i) {
     let lst;
     const con = this.fs.collection(this.colId).doc(row[0]);
     con.get()
@@ -593,12 +714,12 @@ export class DataComponent implements OnInit {
     console.log(row[1][col]);
     console.log(event.target.value);
     console.log(row[1][col][i]);
-  }
+  }*/
   updateValueMapGeo(event, row, col, f, p) {
     const point = {
       longitude: 0,
       latitude: 0
-    }
+    };
     if (p === 'lon') {
       point.longitude = +event.target.value;
       point.latitude = row[1][col][f].latitude;
