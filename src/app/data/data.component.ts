@@ -157,6 +157,23 @@ export class DataComponent implements OnInit {
                   });
                 this.collectionDocs[x] = docs;
               }
+              if (this.tableData[x] === 'map') {
+                const docs = [];
+                for (const arrayMF of this.tableData[x + 'Fields']) {
+                  if (this.tableData[x + 'FieldsMapDT'][arrayMF] === 'database') {
+                    console.log(this.tableData[arrayMF + 'MapRef']);
+                    this.fire.fs.collection(this.tableData[arrayMF + 'MapRef']).get()
+                      .then(snapshot => {
+                        snapshot.forEach(document => {
+                          console.log(document.id);
+                          docs.push(this.tableData[arrayMF + 'MapRef'] + '/' + document.id);
+                        });
+                      });
+                    this.collectionDocs[arrayMF + 'Docs'] = docs;
+                    console.log(docs);
+                  }
+                }
+              }
             }
             if (this.dataTypes[x] === 'map') {
               for (const field of this.tableData[x]) {
@@ -200,9 +217,19 @@ export class DataComponent implements OnInit {
                       k = k + 1;
                     }
                     localData[x] = dateMap;
-                  } else if (localData[x] !== undefined) {
+                  } else if (this.tableData[x] === 'map' && localData[x] !== undefined) {
+                    for (const arrayMapF of this.tableData[x + 'Fields']) {
+                      if (this.tableData[x + 'FieldsMapDT'][arrayMapF] === 'datetime') {
+                        for (const arrayMap of localData[x]) {
+                          console.log(arrayMap[arrayMapF]);
+                          arrayMap[arrayMapF] = new Date(arrayMap[arrayMapF].seconds * 1000);
+                        }
+                      }
+                    }
+                  } else if (localData[x] !== undefined && localData[x] != null) {
                     const dataMap = {};
                     let k = 0;
+                    console.log(localData[x]);
                     for (const i of localData[x]) {
                       dataMap[k] = i;
                       k = k + 1;
@@ -436,22 +463,9 @@ export class DataComponent implements OnInit {
     if (p === 'lon') {
       point.longitude = +event.target.value;
       point.latitude = row[1][col].latitude;
-      /*for (let doc of this.collectionData){
-        if(doc.id==row[0]){
-          id =this.collectionData.indexOf(doc);
-        }
-      }*/
-      // console.log(this.collectionData[id].data());
-      // row[1][col].longitude = +event.target.value;
     } else {
       point.latitude = +event.target.value;
       point.longitude = row[1][col].longitude;
-      /*for (let doc of this.collectionData){
-        if(doc.id==row[0]){
-          id =this.collectionData.indexOf(doc);
-        }
-      }*/
-      // row[1][col].latitude = +event.target.value;
     }
 
     data[col] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
@@ -618,8 +632,43 @@ export class DataComponent implements OnInit {
       }
       case 'map': {
         const d = {};
+        console.log(this.tableData[col + 'Fields']);
         for (const f of this.tableData[col + 'Fields']) {
-          d[f] = '';
+          console.log(this.tableData[col + 'FieldsMapDT']);
+          switch (this.tableData[col + 'FieldsMapDT'][f]) {
+            case 'string': {
+              d[f] = '';
+              break;
+            }
+            case 'number': {
+              d[f] = 0;
+              break;
+            }
+            case 'boolean': {
+              d[f] = false;
+              break;
+            }
+            case 'datetime': {
+              d[f] = new Date();
+              break;
+            }
+            case 'geopoint': {
+              d[f] = new firebase.firestore.GeoPoint(0, 0);
+              break;
+            }
+            case 'database': {
+              d[f] = '';
+              break;
+            }
+            case 'optionselection': {
+              d[f] = '';
+              break;
+            }
+            default: {
+              d[f] = '';
+              break;
+            }
+          }
         }
         row[1][col][k + 1] = d;
         break;
@@ -646,6 +695,75 @@ export class DataComponent implements OnInit {
   deleteArrayItem(row, col, i) {
     console.log(i);
     delete row[1][col][i];
+    const lst = [];
+    // tslint:disable-next-line:forin
+    for (const x in row[1][col]) {
+      lst.push(row[1][col][x]);
+    }
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = lst;
+    connection.update(data);
+  }
+
+  updateValueArrayMapGeo(event, row, col, i, f, p) {
+    const point = {
+      longitude: 0,
+      latitude: 0
+    };
+    if (p === 'lon') {
+      point.longitude = +event.target.value;
+      point.latitude = row[1][col][i][f].latitude;
+    } else {
+      point.longitude = row[1][col][i][f].longitude;
+      point.latitude = +event.target.value;
+    }
+    row[1][col][i][f] = new firebase.firestore.GeoPoint(point.latitude, point.longitude);
+    const lst = [];
+    // tslint:disable-next-line:forin
+    for (const x in row[1][col]) {
+      lst.push(row[1][col][x]);
+    }
+    const connection = this.fs.collection(this.colId).doc(row[0]);
+    const data = {};
+    data[col] = lst;
+    connection.update(data);
+  }
+
+  updateValueArrayMap(event, row, col, i, f) {
+    switch (this.tableData[col + 'FieldsMapDT'][f]) {
+      case 'string': {
+        console.log(row[1][col][i][f]);
+        break;
+      }
+      case 'number': {
+        console.log(row[1][col][i][f]);
+        break;
+      }
+      case 'boolean': {
+        console.log(row[1][col][i][f]);
+        console.log(event);
+        break;
+      }
+      case 'datetime': {
+        console.log(row[1][col][i][f]);
+        row[1][col][i][f] = event.value;
+        console.log(event);
+        break;
+      }
+      case 'database': {
+        console.log(event);
+        row[1][col][i][f] = this.fire.fs.doc(event);
+        break;
+      }
+      case 'optionselection': {
+        console.log(row[1][col][i][f]);
+        break;
+      }
+      default: {
+        break;
+      }
+    }
     const lst = [];
     // tslint:disable-next-line:forin
     for (const x in row[1][col]) {

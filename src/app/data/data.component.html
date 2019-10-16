@@ -138,10 +138,50 @@
                                      <span *ngFor="let f of tableData[col+'Fields']">
                                           <div style="margin-bottom: 5px">
                                               {{f}}
-                                            <input (blur)="updateValueArray($event,row,col,x.key)" [(ngModel)]="row[1][col][x.key][f]"
-                                                   style="width: 80px;float :right" [disabled]="isNull(row[1][col])">
+                                            <input *ngIf="tableData[col+'FieldsMapDT'][f] == 'string'" (blur)="updateValueArrayMap($event,row,col,x.key,f)" [(ngModel)]="row[1][col][x.key][f]"
+                                                   style="width: 155px;float :right" [disabled]="isNull(row[1][col])">
+                                            <input *ngIf="tableData[col+'FieldsMapDT'][f] == 'number'" (blur)="updateValueArrayMap($event,row,col,x.key,f)" [(ngModel)]="row[1][col][x.key][f]"
+                                                   style="width: 155px;float :right" [disabled]="isNull(row[1][col])" type="number">
+                                            <mat-checkbox style="float: right" *ngIf="tableData[col+'FieldsMapDT'][f] == 'boolean'"  [(ngModel)]="row[1][col][x.key][f]"
+                                                          (change)="updateValueArrayMap($event,row,col,x.key,f)" [disabled]="isNull(row[1][col])"></mat-checkbox>
+                                            <span *ngIf="tableData[col+'FieldsMapDT'][f] == 'datetime'">
+                                                <input style="float: right" [value]="row[1][col][x.key][f]"
+                                                       [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1"
+                                                       (dateTimeChange)="updateValueArrayMap($event,row,col,x.key,f)" placeholder="Date Time" [disabled]="isNull(row[1][col])">
+                                                <owl-date-time #dt1 [startAt]="row[1][col][x.key][f]"></owl-date-time>
+                                            </span>
+                                            <span *ngIf="tableData[col+'FieldsMapDT'][f] == 'geopoint'">
+                                                <div style="margin-bottom: 5px">
+                                                    Longitude :
+                                                    <input (blur)="updateValueArrayMapGeo($event,row,col, x.key,f,'lon')" type="number" placeholder="longitude"
+                                                           [value]="row[1][col][x.key][f].longitude" style="width: 155px;float :right" [disabled]="isNull(row[1][col])">
+                                                </div>
+                                                <div>
+                                                    Latitude :
+                                                    <input (blur)="updateValueArrayMapGeo($event,row,col, x.key,f,'lat')" type="number" placeholder="latitude"
+                                                           [value]="row[1][col][x.key][f].latitude" style="width: 155px;float :right" [disabled]="isNull(row[1][col])">
+                                                </div>
+                                            </span>
+                                            <span *ngIf="tableData[col+'FieldsMapDT'][f] == 'database'">
+                                                <mat-select style="width: 80%; float: right" [value]="row[1][col][x.key][f].path" (selectionChange)="updateValueArrayMap($event.value,row,col,x.key,f)"
+                                                            [disabled]="isNull(row[1][col])">
+                                                  <mat-option *ngFor="let doc of collectionDocs[f + 'Docs']" [value]="doc">
+                                                    {{doc}}
+                                                  </mat-option>
+                                                </mat-select>
+                                            </span>
+                                            <span *ngIf="tableData[col+'FieldsMapDT'][f] == 'optionselection'">
+                                                  <mat-select style="width: 80%; float: right" [(ngModel)]="row[1][col][x.key][f]" (selectionChange)="updateValueArrayMap($event,row,col,x.key,f)" [disabled]="isNull(row[1][col])">
+                                                      <mat-option *ngFor="let opn of tableData[f + 'MapOptions']" [value]="opn">
+                                                      {{opn}}
+                                                      </mat-option>
+                                                  </mat-select>
+                                            </span>
                                           </div>
                                      </span>
+                                      <span>
+                                        <button mat-icon-button color="warn" (click)="deleteArrayItem(row,col,x.key)"><mat-icon>delete</mat-icon></button>
+                                      </span>
                                 </div>
 
                                 <div *ngIf="tableData[col]=='geopoint'">
@@ -262,10 +302,10 @@
                         </span>
                     </span>
                     <span *ngIf="! isNull(row[1][col])">
-                      <mat-checkbox [ngModel]="false" (click)="changeToNull(row,col)" ></mat-checkbox>
+                      <mat-checkbox [ngModel]="false" (click)="changeToNull(row,col)" color="primary"></mat-checkbox>
                     </span>
                     <span *ngIf="isNull(row[1][col])">
-                      <mat-checkbox [ngModel]="true" (click)="nullChange(row,col)" ></mat-checkbox>
+                      <mat-checkbox [ngModel]="true" (click)="nullChange(row,col)" color="primary"></mat-checkbox>
                     </span>
                 </td>
                 <td style="padding-right: 8px">
