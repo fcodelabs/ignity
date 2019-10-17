@@ -205,10 +205,12 @@ export class DataComponent implements OnInit {
               for (const x of this.tableData.fields) {
                 if (this.dataTypes[x] === 'datetime') {
                   console.log(localData[x].seconds);
-                  localData[x] = new Date(localData[x].seconds * 1000);
+                  if (localData[x] !== null && localData[x] !== undefined) {
+                    localData[x] = new Date(localData[x].seconds * 1000);
+                  }
                 }
                 if (this.dataTypes[x] === 'array') {
-                  if (this.tableData[x] === 'datetime' && localData[x] !== undefined) {
+                  if (this.tableData[x] === 'datetime' && localData[x] !== undefined && localData[x] !== null) {
                     const dateMap = {};
                     let k = 0;
                     console.log(localData[x]);
@@ -217,7 +219,7 @@ export class DataComponent implements OnInit {
                       k = k + 1;
                     }
                     localData[x] = dateMap;
-                  } else if (this.tableData[x] === 'map' && localData[x] !== undefined) {
+                  } else if (this.tableData[x] === 'map' && localData[x] !== undefined && localData[x] !== null) {
                     for (const arrayMapF of this.tableData[x + 'Fields']) {
                       if (this.tableData[x + 'FieldsMapDT'][arrayMapF] === 'datetime') {
                         for (const arrayMap of localData[x]) {

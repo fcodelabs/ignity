@@ -56,7 +56,7 @@
                     (keyup)="changeValue($event,row,col)" (blur)="updateValue($event,row,col)" #other_content>
                     <span [ngSwitch]="dataTypes[col]">
                         <!--checkbox-->
-                        <span *ngSwitchCase="'boolean'" contenteditable="false">
+                        <span *ngSwitchCase="'boolean'" contenteditable="false" style="padding-right: 85%">
                             <mat-checkbox [(ngModel)]="row[1][col]" (click)="updateCheckBox(row,col)" (blur)="updateValue($event,row,col)"
                                           [disabled]="isNull(row[1][col])"></mat-checkbox>
                         </span>
@@ -277,20 +277,13 @@
                         </span>
                         <!--Data base-->
                         <span *ngSwitchCase="'database'">
-                            <!--td contenteditable="true"  (blur)="updateDatabaseRef($event,row,col)"  style="width: 100%; height:100%;">
-                              {{collectionDocs[col]}}
-                            </td-->
-                          <!--span *ngIf="row[1][col]=='';else other_content">
-                            {{row[1][col]}}
-                          </span>
-                          <ng-template #other_content>
-                            {{row[1][col].path}}
-                          </ng-template-->
-                            <mat-select [value]="row[1][col].path" (selectionChange)="updateDatabaseRef($event.value,row,col)" [disabled]="isNull(row[1][col])">
-                              <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
-                                {{doc}}
-                              </mat-option>
-                            </mat-select>
+                            <mat-form-field style="width: 85%; padding-right: 5%">
+                              <mat-select [value]="row[1][col].path" (selectionChange)="updateDatabaseRef($event.value,row,col)" [disabled]="isNull(row[1][col])">
+                                <mat-option *ngFor="let doc of collectionDocs[col]" [value]="doc">
+                                  {{doc}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
                         </span>
                         <!--Default-->
                         <span *ngSwitchDefault>
