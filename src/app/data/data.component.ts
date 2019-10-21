@@ -204,7 +204,7 @@ export class DataComponent implements OnInit {
               const data = {};
               for (const x of this.tableData.fields) {
                 if (this.dataTypes[x] === 'datetime') {
-                  console.log(localData[x].seconds);
+                  // console.log(localData[x].seconds);
                   if (localData[x] !== null && localData[x] !== undefined) {
                     localData[x] = new Date(localData[x].seconds * 1000);
                   }
@@ -1726,7 +1726,7 @@ export class DataComponent implements OnInit {
       }
       case 'array': {
         dt[col] = [];
-        row[1][col] = [];
+        row[1][col] = {};
         console.log('array');
         break;
       }
